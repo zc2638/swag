@@ -166,16 +166,32 @@ func defineObject(v interface{}) Object {
 			// honor json ignore tag
 			continue
 		}
+		p := inspect(field.Type, field.Tag.Get("json"))
 
-		// determine if this field is required or not
-		if v := field.Tag.Get("required"); v == "true" {
-			if required == nil {
-				required = []string{}
+		// determine the extra info of the field
+		if out := field.Tag.Get("swag"); out != "" {
+			extraData := strings.Split(out, ",")
+			for _, extra := range extraData {
+				extra = strings.TrimSpace(extra)
+				if strings.Index(extra, "required") == 0 {
+					required = append(required, name)
+					continue
+				}
+				if strings.Index(extra, "example") == 0 {
+					p.Example = strings.TrimLeft(extra, "example:")
+					continue
+				}
+				if strings.Index(extra, "description") == 0 {
+					p.Description = strings.TrimLeft(extra, "description:")
+					continue
+				}
+				if strings.Index(extra, "desc") == 0 {
+					p.Description = strings.TrimLeft(extra, "desc:")
+					continue
+				}
 			}
-			required = append(required, name)
 		}
 
-		p := inspect(field.Type, field.Tag.Get("json"))
 		properties[name] = p
 	}
 

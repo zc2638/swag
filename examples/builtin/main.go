@@ -37,7 +37,7 @@ type Category struct {
 type Pet struct {
 	ID        int64    `json:"id"`
 	Category  Category `json:"category"`
-	Name      string   `json:"name"`
+	Name      string   `json:"name" swag:"required, example:张三, desc:名称"`
 	PhotoUrls []string `json:"photoUrls"`
 	Tags      []string `json:"tags"`
 }

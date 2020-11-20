@@ -96,27 +96,47 @@ func parameter(p swagger.Parameter) Option {
 // Path defines a path parameter for the endpoint; name, typ, description, and required correspond to the matching
 // swagger fields
 func Path(name, typ, description string, required bool) Option {
+	return PathDefault(name, typ, description, "", required)
+}
+
+// PathDefault defines a path parameter for the endpoint; name, typ, description, and required correspond
+// to the matching swagger fields
+func PathDefault(name, typ, description, defVal string, required bool) Option {
 	p := swagger.Parameter{
 		Name:        name,
 		In:          "path",
 		Type:        typ,
 		Description: description,
 		Required:    required,
+		Default:     defVal,
 	}
 	return parameter(p)
 }
 
-// Query defines a query parameter for the endpoint; name, typ, description, and required correspond to the matching
-// swagger fields
+// Query defines a query parameter for the endpoint; name, typ, description, and required correspond
+// to the matching swagger fields
 func Query(name, typ, description string, required bool) Option {
+	return QueryDefault(name, typ, description, "", required)
+}
+
+// QueryDefault defines a query parameter for the endpoint; name, typ, description, and required correspond
+// to the matching swagger fields
+func QueryDefault(name, typ, description, defVal string, required bool) Option {
 	p := swagger.Parameter{
 		Name:        name,
 		In:          "query",
 		Type:        typ,
 		Description: description,
 		Required:    required,
+		Default:     defVal,
 	}
 	return parameter(p)
+}
+
+// Body defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
+// prototype should be a struct or a pointer to struct that swag can use to reflect upon the return type
+func Body(prototype interface{}, description string, required bool) Option {
+	return BodyType(reflect.TypeOf(prototype), description, required)
 }
 
 // Body defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
@@ -131,12 +151,6 @@ func BodyType(t reflect.Type, description string, required bool) Option {
 		Required:    required,
 	}
 	return parameter(p)
-}
-
-// Body defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
-// prototype should be a struct or a pointer to struct that swag can use to reflect upon the return type
-func Body(prototype interface{}, description string, required bool) Option {
-	return BodyType(reflect.TypeOf(prototype), description, required)
 }
 
 // Tags allows one or more tags to be associated with the endpoint
