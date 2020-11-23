@@ -40,6 +40,11 @@ type Pet struct {
 	Name      string   `json:"name" swag:"required, example:张三, desc:名称"`
 	PhotoUrls []string `json:"photoUrls"`
 	Tags      []string `json:"tags"`
+	Test
+}
+
+type Test struct {
+	A string `json:"a"`
 }
 
 func main() {
