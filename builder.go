@@ -163,7 +163,9 @@ func Security(scheme string, scopes ...string) Option {
 		if b.API.Security.Requirements == nil {
 			b.API.Security.Requirements = []map[string][]string{}
 		}
-
+		if scopes == nil {
+			scopes = make([]string, 0)
+		}
 		b.API.Security.Requirements = append(b.API.Security.Requirements, map[string][]string{scheme: scopes})
 	}
 }
