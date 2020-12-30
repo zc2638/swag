@@ -108,16 +108,16 @@ func inspect(t reflect.Type, jsonTag string) Property {
 	return p
 }
 
-func dealEmbedded(properties map[string]Property, required []string, f reflect.StructField) {
-	t := f.Type
+func buildProperty(properties map[string]Property, required []string, t reflect.Type) {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
+
 		// skip unexported fields
 		if strings.ToLower(field.Name[0:1]) == field.Name[0:1] {
 			continue
 		}
 		if field.Anonymous {
-			dealEmbedded(properties, required, field)
+			buildProperty(properties, required, field.Type)
 			continue
 		}
 
@@ -141,29 +141,21 @@ func dealEmbedded(properties map[string]Property, required []string, f reflect.S
 		p := inspect(field.Type, field.Tag.Get("json"))
 
 		// determine the extra info of the field
-		if out := field.Tag.Get("swag"); out != "" {
-			extraData := strings.Split(out, ",")
-			for _, extra := range extraData {
-				extra = strings.TrimSpace(extra)
-				if strings.Index(extra, "required") == 0 {
-					required = append(required, name)
-					continue
-				}
-				if strings.Index(extra, "example") == 0 {
-					p.Example = strings.TrimLeft(extra, "example:")
-					continue
-				}
-				if strings.Index(extra, "description") == 0 {
-					p.Description = strings.TrimLeft(extra, "description:")
-					continue
-				}
-				if strings.Index(extra, "desc") == 0 {
-					p.Description = strings.TrimLeft(extra, "desc:")
-					continue
-				}
-			}
+		if _, ok := field.Tag.Lookup("required"); ok {
+			required = append(required, name)
 		}
-
+		if example := field.Tag.Get("example"); example != "" {
+			p.Example = example
+		}
+		if description := field.Tag.Get("description"); description != "" {
+			p.Description = description
+		}
+		if desc := field.Tag.Get("desc"); desc != "" {
+			p.Description = desc
+		}
+		if enum := field.Tag.Get("enum"); enum != "" {
+			p.Enum = strings.Split(enum, ",")
+		}
 		properties[name] = p
 	}
 }
@@ -200,64 +192,7 @@ func defineObject(v interface{}) Object {
 			Required: required,
 		}
 	}
-
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-
-		// skip unexported fields
-		if strings.ToLower(field.Name[0:1]) == field.Name[0:1] {
-			continue
-		}
-		if field.Anonymous {
-			dealEmbedded(properties, required, field)
-			continue
-		}
-
-		// determine the json name of the field
-		name := strings.TrimSpace(field.Tag.Get("json"))
-		if name == "" || strings.HasPrefix(name, ",") {
-			name = field.Name
-
-		} else {
-			// strip out things like , omitempty
-			parts := strings.Split(name, ",")
-			name = parts[0]
-		}
-
-		parts := strings.Split(name, ",") // foo,omitempty => foo
-		name = parts[0]
-		if name == "-" {
-			// honor json ignore tag
-			continue
-		}
-		p := inspect(field.Type, field.Tag.Get("json"))
-
-		// determine the extra info of the field
-		if out := field.Tag.Get("swag"); out != "" {
-			extraData := strings.Split(out, ",")
-			for _, extra := range extraData {
-				extra = strings.TrimSpace(extra)
-				if strings.Index(extra, "required") == 0 {
-					required = append(required, name)
-					continue
-				}
-				if strings.Index(extra, "example") == 0 {
-					p.Example = strings.TrimLeft(extra, "example:")
-					continue
-				}
-				if strings.Index(extra, "description") == 0 {
-					p.Description = strings.TrimLeft(extra, "description:")
-					continue
-				}
-				if strings.Index(extra, "desc") == 0 {
-					p.Description = strings.TrimLeft(extra, "desc:")
-					continue
-				}
-			}
-		}
-
-		properties[name] = p
-	}
+	buildProperty(properties, required, t)
 
 	return Object{
 		IsArray:    isArray,

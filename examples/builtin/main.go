@@ -30,14 +30,14 @@ func handle(w http.ResponseWriter, req *http.Request) {
 // Category example from the swagger pet store
 type Category struct {
 	ID   int64  `json:"category"`
-	Name string `json:"name"`
+	Name string `json:"name" enum:"dog,cat"`
 }
 
 // Pet example from the swagger pet store
 type Pet struct {
 	ID        int64    `json:"id"`
 	Category  Category `json:"category"`
-	Name      string   `json:"name" swag:"required, example:张三, desc:名称"`
+	Name      string   `json:"name" required:"" example:"张三" desc:"名称"`
 	PhotoUrls []string `json:"photoUrls"`
 	Tags      []string `json:"tags"`
 	Test
