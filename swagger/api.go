@@ -333,6 +333,13 @@ func (a *API) AddEndpointFunc(fs ...func(*API)) {
 	}
 }
 
+func (a *API) AddTag(name, description string) {
+	a.Tags = append(a.Tags, Tag{
+		Name:        name,
+		Description: description,
+	})
+}
+
 // Handler is a factory method that generates an http.HandlerFunc; if enableCors is true, then the handler will generate
 // cors headers
 func (a *API) Handler(enableCors bool) http.HandlerFunc {
