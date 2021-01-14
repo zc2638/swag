@@ -17,6 +17,8 @@ package swagger
 import (
 	"fmt"
 	"path/filepath"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -29,7 +31,11 @@ type reflectType interface {
 	Name() string
 }
 
-func makeName(t reflectType) string {
-	name := filepath.Base(t.PkgPath()) + t.Name()
-	return strings.Replace(name, "-", "_", -1)
+func makeName(t reflect.Type) string {
+	name := t.Name()
+	if name == "" {
+		name = "ptr" + strconv.FormatUint(uint64(t.Size()), 10) + strconv.Itoa(t.Align())
+	}
+	full := filepath.Base(t.PkgPath()) + name
+	return strings.Replace(full, "-", "_", -1)
 }

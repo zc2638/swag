@@ -61,9 +61,18 @@ func main() {
 		endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(Pet{})),
 		endpoint.Security("petstore_auth", "read:pets"),
 	)
+	test := endpoint.New("put", "/pet/{petId}",
+		endpoint.Handler(handle),
+		endpoint.Path("petId", "integer", "ID of pet to return", true),
+		endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		}{})),
+		endpoint.Security("petstore_auth", "read:pets"),
+	)
 
 	api := swag.New(
-		swag.Endpoints(post, get),
+		swag.Endpoints(post, get, test),
 		swag.Security("petstore_auth", "read:pets"),
 		swag.SecurityScheme("petstore_auth",
 			swagger.OAuth2Security("accessCode", "http://example.com/oauth/authorize", "http://example.com/oauth/token"),
