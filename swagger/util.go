@@ -34,7 +34,7 @@ type reflectType interface {
 func makeName(t reflect.Type) string {
 	name := t.Name()
 	if name == "" {
-		name = "ptr" + strconv.FormatUint(uint64(t.Size()), 10) + strconv.Itoa(t.Align())
+		name = "ptr" + strconv.FormatUint(uint64(reflect.New(t).Pointer()), 10)
 	}
 	full := filepath.Base(t.PkgPath()) + name
 	return strings.Replace(full, "-", "_", -1)
