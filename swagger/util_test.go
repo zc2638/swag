@@ -14,23 +14,52 @@
 //
 package swagger
 
-type Mock struct {
-	name string
-	pkg  string
+import (
+	"github.com/modern-go/reflect2"
+	"reflect"
+	"strconv"
+	"testing"
+)
+
+func getPtrString(t reflect.Type) string {
+	ptr := reflect2.PtrOf(t)
+	return ".ptr" + strconv.FormatUint(uint64(uintptr(ptr)), 10)
 }
 
-func (m Mock) PkgPath() string {
-	return m.pkg
-}
+func Test_makeName(t *testing.T) {
+	test := struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	}{}
+	test2 := struct {
+		ID   string `json:"id"`
+		Data string `json:"data"`
+	}{}
 
-func (m Mock) Name() string {
-	return m.name
+	type args struct {
+		t reflect.Type
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "test",
+			args: args{t: reflect.TypeOf(test)},
+			want: getPtrString(reflect.TypeOf(test)),
+		},
+		{
+			name: "test2",
+			args: args{t: reflect.TypeOf(test2)},
+			want: getPtrString(reflect.TypeOf(test2)),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := makeName(tt.args.t); got != tt.want {
+				t.Errorf("makeName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
-
-//func TestMakeSchema(t *testing.T) {
-//	name := makeName(Mock{
-//		name: "Name",
-//		pkg:  "with-some-dashes",
-//	})
-//	assert.Equal(t, "with_some_dashesName", name)
-//}
