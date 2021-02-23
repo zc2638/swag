@@ -389,7 +389,7 @@ type RouteInterface interface {
 	Handle(pattern string, handler http.Handler)
 }
 
-func (a *API) registerMux(route RouteInterface, url string, autoDomain bool) {
+func (a *API) registerMux(router RouteInterface, url string, autoDomain bool) {
 	files, err := asserts.Dist.ReadDir(asserts.DistDir)
 	if err != nil {
 		return
@@ -427,23 +427,23 @@ func (a *API) registerMux(route RouteInterface, url string, autoDomain bool) {
 				fileData = bytes.ReplaceAll(fileData, []byte(asserts.URL), []byte(url))
 				w.Write(fileData)
 			})
-			route.Handle(pattern, indexHandler)
-			route.Handle("/swagger-ui", http.RedirectHandler("/swagger-ui/index.html", http.StatusFound))
-			route.Handle("/swagger-ui/", http.RedirectHandler("/swagger-ui/index.html", http.StatusFound))
+			router.Handle(pattern, indexHandler)
+			router.Handle("/swagger-ui", http.RedirectHandler("/swagger-ui/index.html", http.StatusFound))
+			router.Handle("/swagger-ui/", http.RedirectHandler("/swagger-ui/index.html", http.StatusFound))
 			continue
 		}
-		route.Handle(pattern, handler)
+		router.Handle(pattern, handler)
 	}
 }
 
-func (a *API) RegisterMux(route RouteInterface, url string) {
-	a.registerMux(route, url, false)
+func (a *API) RegisterMux(router RouteInterface, url string) {
+	a.registerMux(router, url, false)
 }
 
-func (a *API) RegisterMuxWithData(route RouteInterface, enableCors bool) {
+func (a *API) RegisterMuxWithData(router RouteInterface, enableCors bool) {
 	const url = "/swagger-ui/json"
-	route.Handle(url, a.Handler(enableCors))
-	a.registerMux(route, url, true)
+	router.Handle(url, a.Handler(enableCors))
+	a.registerMux(router, url, true)
 }
 
 func DirFS(dir string, fsys fs.FS) http.FileSystem {
