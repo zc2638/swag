@@ -1,6 +1,6 @@
 module github.com/zc2638/swag
 
-go 1.15
+go 1.16
 
 require (
 	github.com/gin-gonic/gin v1.6.3

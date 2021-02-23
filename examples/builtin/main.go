@@ -84,9 +84,6 @@ func main() {
 	for path, endpoints := range api.Paths {
 		http.Handle(path, endpoints)
 	}
-
-	enableCors := true
-	http.Handle("/swagger", api.Handler(enableCors))
-
+	api.RegisterMuxWithData(http.DefaultServeMux, true)
 	http.ListenAndServe(":8080", nil)
 }
