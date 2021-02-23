@@ -112,10 +112,23 @@ func main() {
     // 
     enableCors := true
     http.Handle("/swagger", api.Handler(enableCors))
-    
     http.ListenAndServe(":8080", nil)
 }
 ```
+or setting swagger ui
+```go
+api.RegisterMuxWithData(http.DefaultServeMux, true)
+```
+
+## Default Swagger UI Server
+
+```go
+func main() {
+    swag.RegisterMux(http.DefaultServeMux, "")
+    http.ListenAndServe(":8080", nil)
+}
+```
+so you can visit: `http://localhost:8080/swagger-ui`
 
 ## Additional Examples
 
