@@ -10,6 +10,9 @@ No code generation, no framework constraints, just a simple swagger definition.
 
 Improve the repo version of [**savaki/swag**](https://github.com/savaki/swag).
 
+## Dependency
+
+Golang 1.16+
 
 ## Installation
 
