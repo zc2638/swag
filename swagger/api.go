@@ -441,6 +441,9 @@ func (a *API) RegisterMux(router RouteInterface, url string) {
 }
 
 func (a *API) RegisterMuxWithData(router RouteInterface, enableCors bool) {
+	for p, endpoints := range a.Paths {
+		router.Handle(p, endpoints)
+	}
 	const url = "/swagger-ui/json"
 	router.Handle(url, a.Handler(enableCors))
 	a.registerMux(router, url, true)
