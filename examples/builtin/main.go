@@ -80,10 +80,6 @@ func main() {
 			swagger.OAuth2Scope("read:pets", "read your pets"),
 		),
 	)
-
-	for path, endpoints := range api.Paths {
-		http.Handle(path, endpoints)
-	}
 	api.RegisterMuxWithData(http.DefaultServeMux, true)
 	http.ListenAndServe(":8080", nil)
 }
