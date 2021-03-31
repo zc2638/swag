@@ -108,7 +108,9 @@ func inspect(t reflect.Type, jsonTag string) Property {
 	return p
 }
 
-func buildProperty(properties map[string]Property, required []string, t reflect.Type) {
+func buildProperty(t reflect.Type) (map[string]Property, []string) {
+	properties := make(map[string]Property)
+	required := make([]string, 0)
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 
@@ -117,7 +119,11 @@ func buildProperty(properties map[string]Property, required []string, t reflect.
 			continue
 		}
 		if field.Anonymous {
-			buildProperty(properties, required, field.Type)
+			// 暂不处理匿名结构的required
+			ps, _ := buildProperty(field.Type)
+			for name, p := range ps {
+				properties[name] = p
+			}
 			continue
 		}
 
@@ -158,11 +164,10 @@ func buildProperty(properties map[string]Property, required []string, t reflect.
 		}
 		properties[name] = p
 	}
+	return properties, required
 }
 
 func defineObject(v interface{}) Object {
-	var required []string
-
 	var t reflect.Type
 	switch value := v.(type) {
 	case reflect.Type:
@@ -171,9 +176,7 @@ func defineObject(v interface{}) Object {
 		t = reflect.TypeOf(v)
 	}
 
-	properties := map[string]Property{}
 	isArray := t.Kind() == reflect.Slice
-
 	if isArray {
 		t = t.Elem()
 	}
@@ -184,15 +187,14 @@ func defineObject(v interface{}) Object {
 	if t.Kind() != reflect.Struct {
 		p := inspect(t, "")
 		return Object{
-			IsArray:  isArray,
-			GoType:   t,
-			Type:     p.Type,
-			Format:   p.Format,
-			Name:     t.Kind().String(),
-			Required: required,
+			IsArray: isArray,
+			GoType:  t,
+			Type:    p.Type,
+			Format:  p.Format,
+			Name:    t.Kind().String(),
 		}
 	}
-	buildProperty(properties, required, t)
+	properties, required := buildProperty(t)
 
 	return Object{
 		IsArray:    isArray,
