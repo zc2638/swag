@@ -239,6 +239,7 @@ type API struct {
 	Host                string                    `json:"host,omitempty"`
 	SecurityDefinitions map[string]SecurityScheme `json:"securityDefinitions,omitempty"`
 	Security            *SecurityRequirement      `json:"security,omitempty"`
+	tags                []Tag
 }
 
 func (a *API) clone() *API {
@@ -323,18 +324,33 @@ func (a *API) addDefinition(e *Endpoint) {
 	}
 }
 
+func (a *API) WithTags(tags ...Tag) *API {
+	a.tags = tags
+	return a
+}
+
 // AddEndpoint adds the specified endpoint to the API definition; to generate an endpoint use ```endpoint.New```
 func (a *API) AddEndpoint(es ...*Endpoint) {
+	tags := make([]string, 0, len(a.tags))
+	for _, tag := range a.tags {
+		tags = append(tags, tag.Name)
+	}
+	if len(tags) == 0 {
+		tags = nil
+	}
 	for _, e := range es {
+		e.Tags = tags
 		a.addPath(e)
 		a.addDefinition(e)
 	}
+	a.tags = nil
 }
 
 func (a *API) AddEndpointFunc(fs ...func(*API)) {
 	for _, f := range fs {
 		f(a)
 	}
+	a.tags = nil
 }
 
 func (a *API) AddTag(name, description string) {
