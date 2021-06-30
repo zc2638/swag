@@ -335,11 +335,8 @@ func (a *API) AddEndpoint(es ...*Endpoint) {
 	for _, tag := range a.tags {
 		tags = append(tags, tag.Name)
 	}
-	if len(tags) == 0 {
-		tags = nil
-	}
 	for _, e := range es {
-		e.Tags = tags
+		e.Tags = append(e.Tags, tags...)
 		a.addPath(e)
 		a.addDefinition(e)
 	}
