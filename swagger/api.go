@@ -325,6 +325,19 @@ func (a *API) addDefinition(e *Endpoint) {
 }
 
 func (a *API) WithTags(tags ...Tag) *API {
+	for _, v := range tags {
+		exists := false
+		for _, tag := range a.Tags {
+			if tag.Name == v.Name {
+				exists = true
+				break
+			}
+		}
+		if exists {
+			continue
+		}
+		a.Tags = append(a.Tags, v)
+	}
 	a.tags = tags
 	return a
 }
