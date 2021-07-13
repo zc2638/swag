@@ -46,12 +46,6 @@ type Empty struct {
 	Nope int `json:"-"`
 }
 
-type APIResponse struct {
-	Code    int    `json:"code"`
-	Type    string `json:"type"`
-	Message string `json:"message"`
-}
-
 func TestDefine(t *testing.T) {
 	v := define(Pet{})
 	obj, ok := v["swaggerPet"]
