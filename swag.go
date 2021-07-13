@@ -18,5 +18,5 @@ import "github.com/zc2638/swag/swagger"
 
 func RegisterMux(router swagger.RouteInterface, url string) {
 	api := New()
-	api.RegisterMux(router, url)
+	api.RegisterMux(router, url, true)
 }
