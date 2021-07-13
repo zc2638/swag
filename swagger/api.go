@@ -462,15 +462,16 @@ func (a *API) registerMux(router RouteInterface, url string, autoDomain bool) {
 	}
 }
 
-func (a *API) RegisterMux(router RouteInterface, url string) {
-	a.registerMux(router, url, false)
+func (a *API) RegisterMux(router RouteInterface, url string, autoDomain bool) {
+	a.registerMux(router, url, autoDomain)
 }
+
+const url = "/swagger-ui/json"
 
 func (a *API) RegisterMuxWithData(router RouteInterface, enableCors bool) {
 	for p, endpoints := range a.Paths {
-		router.Handle(p, endpoints)
+		router.Handle(path.Join(a.BasePath, p), endpoints)
 	}
-	const url = "/swagger-ui/json"
 	router.Handle(url, a.Handler(enableCors))
 	a.registerMux(router, url, true)
 }
