@@ -72,7 +72,8 @@ type Endpoint struct {
 	Responses   map[string]Response `json:"responses,omitempty"`
 
 	// swagger spec requires security to be an array of objects
-	Security *SecurityRequirement `json:"security,omitempty"`
+	Security   *SecurityRequirement `json:"security,omitempty"`
+	Deprecated bool                 `json:"deprecated,omitempty"`
 }
 
 type SecurityRequirement struct {

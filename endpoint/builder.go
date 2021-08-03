@@ -241,6 +241,12 @@ func ResponseSuccess(opts ...ResponseOption) Option {
 	return Response(http.StatusOK, "success", opts...)
 }
 
+func Deprecated() Option {
+	return func(b *Builder) {
+		b.Endpoint.Deprecated = true
+	}
+}
+
 // New constructs a new swagger endpoint using the fields and functional options provided
 func New(method, path string, options ...Option) *swagger.Endpoint {
 	method = strings.ToUpper(method)
