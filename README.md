@@ -1,6 +1,9 @@
 # swag
 
+![LICENSE](https://img.shields.io/github/license/zc2638/swag.svg?style=flat-square&color=blue)
 [![GoDoc](https://godoc.org/github.com/zc2638/swag?status.svg)](https://godoc.org/github.com/zc2638/swag)
+[![Go Report Card](https://goreportcard.com/badge/github.com/zc2638/swag)](https://goreportcard.com/report/github.com/zc2638/swag)
+
 
 ```swag``` is a lightweight library to generate swagger json for Go projects.  
  
