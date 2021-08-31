@@ -23,8 +23,8 @@ import (
 
 	"path/filepath"
 
-	"github.com/zc2638/swag/swagger"
 	"github.com/stretchr/testify/assert"
+	"github.com/zc2638/swag/swagger"
 )
 
 func TestEndpoints_ServeHTTPNotFound(t *testing.T) {
@@ -46,7 +46,7 @@ func TestEndpoints_ServeHTTP(t *testing.T) {
 		return &swagger.Endpoint{
 			Handler: func(w http.ResponseWriter, req *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				io.WriteString(w, v)
+				_, _ = io.WriteString(w, v)
 			},
 		}
 	}

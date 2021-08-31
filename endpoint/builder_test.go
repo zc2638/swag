@@ -28,7 +28,7 @@ import (
 )
 
 func Echo(w http.ResponseWriter, _ *http.Request) {
-	io.WriteString(w, "hello world")
+	_, _ = io.WriteString(w, "hello world")
 }
 
 func TestNew(t *testing.T) {
@@ -43,7 +43,7 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, []string{"application/json"}, e.Consumes)
 	assert.Equal(t, []string{"application/json"}, e.Produces)
 	assert.Equal(t, summary, e.Summary)
-	assert.Equal(t, []string{}, e.Tags)
+	assert.Equal(t, []string(nil), e.Tags)
 }
 
 func TestTags(t *testing.T) {
@@ -151,7 +151,7 @@ func TestResponse(t *testing.T) {
 		Description: "successful",
 		Schema: &swagger.Schema{
 			Ref:       "#/definitions/endpoint_testModel",
-			Prototype: reflect.TypeOf(Model{}),
+			Prototype: Model{},
 		},
 	}
 
@@ -160,16 +160,14 @@ func TestResponse(t *testing.T) {
 	)
 
 	assert.Equal(t, 1, len(e.Responses))
-	assert.Equal(t, expected, e.Responses["200"])
+	assert.Equal(t, expected.Description, e.Responses["200"].Description)
+	assert.Equal(t, *expected.Schema, *e.Responses["200"].Schema)
 }
 
 func TestResponseHeader(t *testing.T) {
 	expected := swagger.Response{
 		Description: "successful",
-		Schema: &swagger.Schema{
-			Ref:       "#/definitions/endpoint_testModel",
-			Prototype: reflect.TypeOf(Model{}),
-		},
+		Schema: nil,
 		Headers: map[string]swagger.Header{
 			"X-Rate-Limit": {
 				Type:        "integer",

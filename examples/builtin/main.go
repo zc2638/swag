@@ -36,10 +36,10 @@ type Category struct {
 // Pet example from the swagger pet store
 type Pet struct {
 	ID        int64    `json:"id"`
-	Category  Category `json:"category"`
+	Category  Category `json:"category" desc:"分类"`
 	Name      string   `json:"name" required:"" example:"张三" desc:"名称"`
 	PhotoUrls []string `json:"photoUrls"`
-	Tags      []string `json:"tags"`
+	Tags      []string `json:"tags" desc:"标签"`
 	Test
 }
 

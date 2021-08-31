@@ -30,13 +30,14 @@ import (
 
 // Object represents the object entity from the swagger definition
 type Object struct {
-	IsArray    bool                `json:"-"`
-	GoType     reflect.Type        `json:"-"`
-	Name       string              `json:"-"`
-	Type       string              `json:"type"`
-	Format     string              `json:"format,omitempty"`
-	Required   []string            `json:"required,omitempty"`
-	Properties map[string]Property `json:"properties,omitempty"`
+	IsArray     bool                `json:"-"`
+	GoType      reflect.Type        `json:"-"`
+	Name        string              `json:"-"`
+	Type        string              `json:"type"`
+	Description string              `json:"description,omitempty"`
+	Format      string              `json:"format,omitempty"`
+	Required    []string            `json:"required,omitempty"`
+	Properties  map[string]Property `json:"properties,omitempty"`
 }
 
 // Property represents the property entity from the swagger definition
@@ -192,7 +193,7 @@ func (e *Endpoints) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		v.ServeHTTP(w, req)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(w, "Handler is not a standard http handler")
+		_, _ = io.WriteString(w, "Handler is not a standard http handler")
 	}
 }
 
@@ -451,7 +452,7 @@ func (a *API) registerMux(router RouteInterface, url string, autoDomain bool) {
 					url = scheme + "://" + path.Join(r.Host, url)
 				}
 				fileData = bytes.ReplaceAll(fileData, []byte(asserts.URL), []byte(url))
-				w.Write(fileData)
+				_, _ = w.Write(fileData)
 			})
 			router.Handle(pattern, indexHandler)
 			router.Handle("/swagger-ui", http.RedirectHandler("/swagger-ui/index.html", http.StatusFound))

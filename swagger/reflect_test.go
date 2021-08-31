@@ -38,8 +38,6 @@ type Pet struct {
 	IntArray    []int
 	String      string
 	StringArray []string
-
-	unexported string
 }
 
 type Empty struct {
@@ -124,17 +122,4 @@ func TestHonorJsonIgnore(t *testing.T) {
 	assert.True(t, ok)
 	assert.False(t, obj.IsArray)
 	assert.Equal(t, 0, len(obj.Properties), "expected zero exposed properties")
-}
-
-func TestIgnoreUnexported(t *testing.T) {
-	type Test struct {
-		Exported   string
-		unexported string
-	}
-	v := define(Test{})
-	obj, ok := v["swaggerTest"]
-	assert.True(t, ok)
-	assert.Equal(t, 1, len(obj.Properties), "expected one exposed properties")
-	assert.Contains(t, obj.Properties, "Exported")
-	assert.NotContains(t, obj.Properties, "unexported")
 }

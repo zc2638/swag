@@ -167,7 +167,7 @@ func buildProperty(t reflect.Type) (map[string]Property, []string) {
 	return properties, required
 }
 
-func defineObject(v interface{}) Object {
+func defineObject(v interface{}, desc string) Object {
 	var t reflect.Type
 	switch value := v.(type) {
 	case reflect.Type:
@@ -197,19 +197,20 @@ func defineObject(v interface{}) Object {
 	properties, required := buildProperty(t)
 
 	return Object{
-		IsArray:    isArray,
-		GoType:     t,
-		Type:       "object",
-		Name:       makeName(t),
-		Required:   required,
-		Properties: properties,
+		IsArray:     isArray,
+		GoType:      t,
+		Type:        "object",
+		Name:        makeName(t),
+		Required:    required,
+		Properties:  properties,
+		Description: desc,
 	}
 }
 
 func define(v interface{}) map[string]Object {
 	objMap := map[string]Object{}
 
-	obj := defineObject(v)
+	obj := defineObject(v, "")
 	objMap[obj.Name] = obj
 
 	dirty := true
@@ -221,7 +222,7 @@ func define(v interface{}) map[string]Object {
 				if p.GoType.Kind() == reflect.Struct {
 					name := makeName(p.GoType)
 					if _, exists := objMap[name]; !exists {
-						child := defineObject(p.GoType)
+						child := defineObject(p.GoType, p.Description)
 						objMap[child.Name] = child
 						dirty = true
 					}
@@ -239,7 +240,7 @@ func MakeSchema(prototype interface{}) *Schema {
 		Prototype: prototype,
 	}
 
-	obj := defineObject(prototype)
+	obj := defineObject(prototype, "")
 	if obj.IsArray {
 		schema.Type = "array"
 		schema.Items = &Items{
