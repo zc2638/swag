@@ -37,6 +37,10 @@ func inspect(t reflect.Type, jsonTag string) Property {
 		return p
 	}
 
+	if p.GoType.Kind() == reflect.Ptr {
+		p.GoType = p.GoType.Elem()
+	}
+
 	switch p.GoType.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint8, reflect.Uint16, reflect.Uint32:
 		p.Type = TypeInteger

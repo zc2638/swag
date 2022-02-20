@@ -29,17 +29,18 @@ func handle(w http.ResponseWriter, req *http.Request) {
 
 // Category example from the swagger pet store
 type Category struct {
-	ID   int64  `json:"category"`
-	Name string `json:"name" enum:"dog,cat" required:""`
+	ID     int64  `json:"category"`
+	Name   string `json:"name" enum:"dog,cat" required:""`
+	Exists *bool  `json:"exists" required:""`
 }
 
 // Pet example from the swagger pet store
 type Pet struct {
-	ID        int64    `json:"id"`
-	Category  Category `json:"category" desc:"分类"`
-	Name      string   `json:"name" required:"" example:"张三" desc:"名称"`
-	PhotoUrls []string `json:"photoUrls"`
-	Tags      []string `json:"tags" desc:"标签"`
+	ID        int64     `json:"id"`
+	Category  *Category `json:"category" desc:"分类"`
+	Name      string    `json:"name" required:"" example:"张三" desc:"名称"`
+	PhotoUrls []string  `json:"photoUrls"`
+	Tags      []string  `json:"tags" desc:"标签"`
 	Test
 }
 
