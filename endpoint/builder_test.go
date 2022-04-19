@@ -11,20 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
+
 package endpoint_test
 
 import (
 	"io"
 	"net/http"
+	"reflect"
 	"testing"
 
-	"reflect"
-
 	"github.com/stretchr/testify/assert"
+
 	"github.com/zc2638/swag"
 	"github.com/zc2638/swag/endpoint"
-	"github.com/zc2638/swag/swagger"
 )
 
 func Echo(w http.ResponseWriter, _ *http.Request) {
@@ -89,7 +88,7 @@ func TestConsumes(t *testing.T) {
 }
 
 func TestPath(t *testing.T) {
-	expected := swagger.Parameter{
+	expected := swag.Parameter{
 		In:          "path",
 		Name:        "id",
 		Description: "the description",
@@ -106,7 +105,7 @@ func TestPath(t *testing.T) {
 }
 
 func TestQuery(t *testing.T) {
-	expected := swagger.Parameter{
+	expected := swag.Parameter{
 		In:          "query",
 		Name:        "id",
 		Description: "the description",
@@ -127,12 +126,12 @@ type Model struct {
 }
 
 func TestBody(t *testing.T) {
-	expected := swagger.Parameter{
+	expected := swag.Parameter{
 		In:          "body",
 		Name:        "body",
 		Description: "the description",
 		Required:    true,
-		Schema: &swagger.Schema{
+		Schema: &swag.Schema{
 			Ref:       "#/definitions/endpoint_testModel",
 			Prototype: reflect.TypeOf(Model{}),
 		},
@@ -147,9 +146,9 @@ func TestBody(t *testing.T) {
 }
 
 func TestResponse(t *testing.T) {
-	expected := swagger.Response{
+	expected := swag.Response{
 		Description: "successful",
-		Schema: &swagger.Schema{
+		Schema: &swag.Schema{
 			Ref:       "#/definitions/endpoint_testModel",
 			Prototype: Model{},
 		},
@@ -165,10 +164,10 @@ func TestResponse(t *testing.T) {
 }
 
 func TestResponseHeader(t *testing.T) {
-	expected := swagger.Response{
+	expected := swag.Response{
 		Description: "successful",
-		Schema: nil,
-		Headers: map[string]swagger.Header{
+		Schema:      nil,
+		Headers: map[string]swag.Header{
 			"X-Rate-Limit": {
 				Type:        "integer",
 				Format:      "int32",
@@ -189,8 +188,8 @@ func TestResponseHeader(t *testing.T) {
 
 func TestSecurityScheme(t *testing.T) {
 	api := swag.New(
-		swag.SecurityScheme("basic", swagger.BasicSecurity()),
-		swag.SecurityScheme("apikey", swagger.APIKeySecurity("Authorization", "header")),
+		swag.SecuritySchemeOption("basic", swag.BasicSecurity()),
+		swag.SecuritySchemeOption("apikey", swag.APIKeySecurity("Authorization", "header")),
 	)
 	assert.Len(t, api.SecurityDefinitions, 2)
 	assert.Contains(t, api.SecurityDefinitions, "basic")

@@ -11,11 +11,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
+
 package swag
 
 import (
+	"fmt"
+	"github.com/modern-go/reflect2"
+	"path/filepath"
+	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -30,4 +35,18 @@ func ColonPath(path string) string {
 		path = strings.Replace(path, match[0], ":"+match[1], -1)
 	}
 	return path
+}
+
+func makeRef(name string) string {
+	return fmt.Sprintf("#/definitions/%v", name)
+}
+
+func makeName(t reflect.Type) string {
+	name := t.Name()
+	if name == "" {
+		ptr := reflect2.PtrOf(t)
+		name = "ptr" + strconv.FormatUint(uint64(uintptr(ptr)), 10)
+	}
+	full := filepath.Base(t.PkgPath()) + name
+	return strings.Replace(full, "-", "_", -1)
 }

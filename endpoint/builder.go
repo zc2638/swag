@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
+
 package endpoint
 
 import (
@@ -20,12 +20,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/zc2638/swag/swagger"
+	"github.com/zc2638/swag"
 )
 
 // Builder uses the builder pattern to generate swagger endpoint definitions
 type Builder struct {
-	Endpoint *swagger.Endpoint
+	Endpoint *swag.Endpoint
 }
 
 // Option represents a functional option to customize the swagger endpoint
@@ -83,10 +83,10 @@ func Consumes(v ...string) Option {
 	}
 }
 
-func parameter(p swagger.Parameter) Option {
+func parameter(p swag.Parameter) Option {
 	return func(b *Builder) {
 		if b.Endpoint.Parameters == nil {
-			b.Endpoint.Parameters = []swagger.Parameter{}
+			b.Endpoint.Parameters = []swag.Parameter{}
 		}
 
 		b.Endpoint.Parameters = append(b.Endpoint.Parameters, p)
@@ -102,7 +102,7 @@ func Path(name, typ, description string, required bool) Option {
 // PathDefault defines a path parameter for the endpoint; name, typ, description, and required correspond
 // to the matching swagger fields
 func PathDefault(name, typ, description, defVal string, required bool) Option {
-	p := swagger.Parameter{
+	p := swag.Parameter{
 		Name:        name,
 		In:          "path",
 		Type:        typ,
@@ -122,7 +122,7 @@ func Query(name, typ, description string, required bool) Option {
 // QueryDefault defines a query parameter for the endpoint; name, typ, description, and required correspond
 // to the matching swagger fields
 func QueryDefault(name, typ, description, defVal string, required bool) Option {
-	p := swagger.Parameter{
+	p := swag.Parameter{
 		Name:        name,
 		In:          "query",
 		Type:        typ,
@@ -139,15 +139,15 @@ func Body(prototype interface{}, description string, required bool) Option {
 	return BodyType(reflect.TypeOf(prototype), description, required)
 }
 
-// Body defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
+// BodyType defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
 // prototype should be a struct or a pointer to struct that swag can use to reflect upon the return type
 // t represents the Type of the body
 func BodyType(t reflect.Type, description string, required bool) Option {
-	p := swagger.Parameter{
+	p := swag.Parameter{
 		In:          "body",
 		Name:        "body",
 		Description: description,
-		Schema:      swagger.MakeSchema(t),
+		Schema:      swag.MakeSchema(t),
 		Required:    required,
 	}
 	return parameter(p)
@@ -168,7 +168,7 @@ func Tags(tags ...string) Option {
 func Security(scheme string, scopes ...string) Option {
 	return func(b *Builder) {
 		if b.Endpoint.Security == nil {
-			b.Endpoint.Security = &swagger.SecurityRequirement{}
+			b.Endpoint.Security = &swag.SecurityRequirement{}
 		}
 
 		if b.Endpoint.Security.Requirements == nil {
@@ -182,32 +182,32 @@ func Security(scheme string, scopes ...string) Option {
 // NoSecurity explicitly sets the endpoint to have no security requirements.
 func NoSecurity() Option {
 	return func(b *Builder) {
-		b.Endpoint.Security = &swagger.SecurityRequirement{DisableSecurity: true}
+		b.Endpoint.Security = &swag.SecurityRequirement{DisableSecurity: true}
 	}
 }
 
 // ResponseOption allows for additional configurations on responses like header information
-type ResponseOption func(response *swagger.Response)
+type ResponseOption func(response *swag.Response)
 
 // Apply improves the readability of applied options
-func (o ResponseOption) Apply(response *swagger.Response) {
+func (o ResponseOption) Apply(response *swag.Response) {
 	o(response)
 }
 
 // Schema adds schema definitions to swagger responses
 func Schema(schema interface{}) ResponseOption {
-	return func(response *swagger.Response) {
-		response.Schema = swagger.MakeSchema(schema)
+	return func(response *swag.Response) {
+		response.Schema = swag.MakeSchema(schema)
 	}
 }
 
 // Header adds header definitions to swagger responses
 func Header(name, typ, format, description string) ResponseOption {
-	return func(response *swagger.Response) {
+	return func(response *swag.Response) {
 		if response.Headers == nil {
-			response.Headers = map[string]swagger.Header{}
+			response.Headers = map[string]swag.Header{}
 		}
-		response.Headers[name] = swagger.Header{
+		response.Headers[name] = swag.Header{
 			Type:        typ,
 			Format:      format,
 			Description: description,
@@ -220,9 +220,9 @@ func Header(name, typ, format, description string) ResponseOption {
 func ResponseType(code int, description string, opts ...ResponseOption) Option {
 	return func(b *Builder) {
 		if b.Endpoint.Responses == nil {
-			b.Endpoint.Responses = make(map[string]swagger.Response)
+			b.Endpoint.Responses = make(map[string]swag.Response)
 		}
-		r := swagger.Response{
+		r := swag.Response{
 			Description: description,
 		}
 		for _, opt := range opts {
@@ -248,10 +248,10 @@ func Deprecated() Option {
 }
 
 // New constructs a new swagger endpoint using the fields and functional options provided
-func New(method, path string, options ...Option) *swagger.Endpoint {
+func New(method, path string, options ...Option) *swag.Endpoint {
 	method = strings.ToUpper(method)
 	e := &Builder{
-		Endpoint: &swagger.Endpoint{
+		Endpoint: &swag.Endpoint{
 			Method:      method,
 			Path:        path,
 			OperationID: strings.ToLower(method) + camel(path),

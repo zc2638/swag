@@ -1,31 +1,32 @@
-// Copyright 2020 zc2638
+// Copyright © 2022 zc2638 <zc2638@qq.com>.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-package swagger
+
+package swag
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkgms/go/ctr"
-	"github.com/zc2638/swag/asserts"
 	"io"
-	"io/fs"
 	"net/http"
 	"path"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/pkgms/go/ctr"
+
+	"github.com/zc2638/swag/asserts"
 )
 
 // Object represents the object entity from the swagger definition
@@ -83,62 +84,6 @@ type SecurityScheme struct {
 	AuthorizationURL string            `json:"authorizationUrl,omitempty"`
 	TokenURL         string            `json:"tokenUrl,omitempty"`
 	Scopes           map[string]string `json:"scopes,omitempty"`
-}
-
-// SecuritySchemeOption provides additional customizations to the SecurityScheme.
-type SecuritySchemeOption func(securityScheme *SecurityScheme)
-
-// SecuritySchemeDescription sets the security scheme's description.
-func SecuritySchemeDescription(description string) SecuritySchemeOption {
-	return func(securityScheme *SecurityScheme) {
-		securityScheme.Description = description
-	}
-}
-
-// BasicSecurity defines a security scheme for HTTP Basic authentication.
-func BasicSecurity() SecuritySchemeOption {
-	return func(securityScheme *SecurityScheme) {
-		securityScheme.Type = "basic"
-	}
-}
-
-// APIKeySecurity defines a security scheme for API key authentication. "in" is
-// the location of the API key (query or header). "name" is the name of the
-// header or query parameter to be used.
-func APIKeySecurity(name, in string) SecuritySchemeOption {
-	if in != "header" && in != "query" {
-		panic(fmt.Errorf(`APIKeySecurity "in" parameter must be one of: "header" or "query"`))
-	}
-
-	return func(securityScheme *SecurityScheme) {
-		securityScheme.Type = "apiKey"
-		securityScheme.Name = name
-		securityScheme.In = in
-	}
-}
-
-// OAuth2Scope adds a new scope to the security scheme.
-func OAuth2Scope(scope, description string) SecuritySchemeOption {
-	return func(securityScheme *SecurityScheme) {
-		if securityScheme.Scopes == nil {
-			securityScheme.Scopes = map[string]string{}
-		}
-		securityScheme.Scopes[scope] = description
-	}
-}
-
-// OAuth2Security defines a security scheme for OAuth2 authentication. Flow can
-// be one of implicit, password, application, or accessCode.
-func OAuth2Security(flow, authorizationURL, tokenURL string) SecuritySchemeOption {
-	return func(securityScheme *SecurityScheme) {
-		securityScheme.Type = "oauth2"
-		securityScheme.Flow = flow
-		securityScheme.AuthorizationURL = authorizationURL
-		securityScheme.TokenURL = tokenURL
-		if securityScheme.Scopes == nil {
-			securityScheme.Scopes = map[string]string{}
-		}
-	}
 }
 
 // Endpoints represents all the swagger endpoints associated with a particular path
@@ -373,14 +318,8 @@ func (a *API) AddTag(name, description string) {
 
 // Handler is a factory method that generates an http.HandlerFunc; if enableCors is true, then the handler will generate
 // cors headers
-func (a *API) Handler(enableCors bool) http.HandlerFunc {
+func (a *API) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		if enableCors {
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, api_key, Authorization")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH")
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-		}
-
 		// customize the swagger header based on host
 		scheme := ""
 		if req.TLS != nil {
@@ -412,83 +351,57 @@ func (a *API) Walk(callback func(path string, endpoints *Endpoint)) {
 	}
 }
 
-type RouteInterface interface {
-	Handle(pattern string, handler http.Handler)
-}
-
-func (a *API) registerMux(router RouteInterface, url string, autoDomain bool) {
+func UIPatterns(prefix string) []string {
 	files, err := asserts.Dist.ReadDir(asserts.DistDir)
 	if err != nil {
-		return
+		return nil
 	}
-	handler := http.StripPrefix("/swagger-ui", http.FileServer(DirFS(asserts.DistDir, asserts.Dist)))
-	for _, file := range files {
-		filename := file.Name()
-		pattern := path.Join("/swagger-ui", filename)
-		if filename == "index.html" {
-			fullName := filepath.Join(asserts.DistDir, filename)
+	patterns := make([]string, 0, len(files)+1)
+	patterns = append(patterns, path.Join(prefix)+"/")
+	for _, f := range files {
+		patterns = append(patterns, path.Join(prefix, f.Name()))
+	}
+	return patterns
+}
+
+func UIHandler(prefix, uri string, autoDomain bool) http.Handler {
+	return http.StripPrefix(prefix, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" || r.URL.Path == "index.html" {
+			fullName := filepath.Join(asserts.DistDir, "index.html")
 			fileData, err := asserts.Dist.ReadFile(fullName)
 			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = w.Write([]byte("index.html read exception"))
 				return
 			}
-			if url == "" {
-				url = asserts.URL
-			}
-			indexHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if autoDomain {
-					scheme := ""
-					if r.TLS != nil {
-						scheme = "https"
-					}
-					if v := r.Header.Get("X-Forwarded-Proto"); v != "" {
-						scheme = v
-					}
-					if scheme == "" {
-						scheme = r.URL.Scheme
-					}
-					if scheme == "" {
-						scheme = "http"
-					}
-					url = scheme + "://" + path.Join(r.Host, url)
-				}
-				fileData = bytes.ReplaceAll(fileData, []byte(asserts.URL), []byte(url))
+			if uri == "" {
 				_, _ = w.Write(fileData)
-			})
-			router.Handle(pattern, indexHandler)
-			router.Handle("/swagger-ui", http.RedirectHandler("/swagger-ui/index.html", http.StatusFound))
-			router.Handle("/swagger-ui/", http.RedirectHandler("/swagger-ui/index.html", http.StatusFound))
-			continue
+				return
+			}
+
+			// Prevent uri assignment from causing final uri exception.
+			currentURI := uri
+			if autoDomain {
+				scheme := ""
+				if r.TLS != nil {
+					scheme = "https"
+				}
+				if v := r.Header.Get("X-Forwarded-Proto"); v != "" {
+					scheme = v
+				}
+				if scheme == "" {
+					scheme = r.URL.Scheme
+				}
+				if scheme == "" {
+					scheme = "http"
+				}
+				currentURI = scheme + "://" + path.Join(r.Host, currentURI)
+			}
+
+			fileData = bytes.ReplaceAll(fileData, []byte(asserts.URL), []byte(currentURI))
+			_, _ = w.Write(fileData)
+			return
 		}
-		router.Handle(pattern, handler)
-	}
-}
-
-func (a *API) RegisterMux(router RouteInterface, url string, autoDomain bool) {
-	a.registerMux(router, url, autoDomain)
-}
-
-const url = "/swagger-ui/json"
-
-func (a *API) RegisterMuxWithData(router RouteInterface, enableCors bool) {
-	for p, endpoints := range a.Paths {
-		router.Handle(path.Join(a.BasePath, p), endpoints)
-	}
-	router.Handle(url, a.Handler(enableCors))
-	a.registerMux(router, url, true)
-}
-
-func DirFS(dir string, fsys fs.FS) http.FileSystem {
-	return dirFS{
-		dir: dir,
-		fs:  http.FS(fsys),
-	}
-}
-
-type dirFS struct {
-	dir string
-	fs  http.FileSystem
-}
-
-func (f dirFS) Open(name string) (http.File, error) {
-	return f.fs.Open(filepath.Join(f.dir, name))
+		http.FileServer(DirFS(asserts.DistDir, asserts.Dist)).ServeHTTP(w, r)
+	}))
 }
