@@ -6,10 +6,11 @@
 
 
 ```swag``` is a lightweight library to generate swagger json for Go projects.  
+
+```swag``` is heavily geared towards generating REST/JSON apis.
  
 No code generation, no framework constraints, just a simple swagger definition.
 
-```swag``` is heavily geared towards generating REST/JSON apis.
 
 ## Dependency
 
@@ -21,15 +22,11 @@ Golang 1.16+
 go get -u github.com/zc2638/swag
 ```
 
-## Concepts
-
-```swag``` uses functional options to generate both the swagger endpoints and the swagger definition.  Where possible
-```swag``` attempts to use reasonable defaults that may be overridden by the user.
-
+**Tip:** As of `v1.2.0`, lower versions are no longer compatible. In order to be compatible with most web frameworks, the overall architecture has been greatly changed.
 ### Endpoints
 
 ```swag``` provides a separate package, ```endpoint```, to generate swagger endpoints.  These endpoints can be passed
-to the swagger definition generate via ```swag.Endpoints(...)```
+to the swagger definition generate via ```swag.EndpointsOption(...)```
 
 In this simple example, we generate an endpoint to retrieve all pets.  The only required fields for an endpoint
 are the method, path, and the summary.  
@@ -62,7 +59,7 @@ api := swag.New(
 
 // iterate over each endpoint, if we've defined a handler, we can use it to bind to the router.  We're using ```gin``
 // in this example, but any web framework will do.
-// 
+router := gin.New()
 api.Walk(func(path string, endpoint *swag.Endpoint) {
     h := endpoint.Handler.(func(c *gin.Context))
     path = swag.ColonPath(path)
