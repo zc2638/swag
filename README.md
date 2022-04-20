@@ -94,10 +94,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path"
 
 	"github.com/zc2638/swag"
 	"github.com/zc2638/swag/endpoint"
+	"github.com/zc2638/swag/option"
 )
 
 // Category example from the swagger pet store
@@ -121,39 +121,44 @@ func handle(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	post := endpoint.New("post", "/pet", endpoint.Summary("Add a new pet to the store"),
-		endpoint.Handler(handle),
-		endpoint.Description("Additional information on adding a pet to the store"),
-		endpoint.Body(Pet{}, "Pet object that needs to be added to the store", true),
-		endpoint.Response(http.StatusOK, "Successfully added pet", endpoint.Schema(Pet{})),
-		endpoint.Security("petstore_auth", "read:pets", "write:pets"),
-	)
-	get := endpoint.New("get", "/pet/{petId}", endpoint.Summary("Find pet by ID"),
-		endpoint.Handler(handle),
-		endpoint.Path("petId", "integer", "ID of pet to return", true),
-		endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(Pet{})),
-		endpoint.Security("petstore_auth", "read:pets"),
-	)
-	test := endpoint.New("put", "/pet/{petId}",
-		endpoint.Handler(handle),
-		endpoint.Path("petId", "integer", "ID of pet to return", true),
-		endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(struct {
-			ID   string `json:"id"`
-			Name string `json:"name"`
-		}{})),
-		endpoint.Security("petstore_auth", "read:pets"),
-	)
-
-	securityScheme := swag.OAuth2Security("accessCode", "http://example.com/oauth/authorize", "http://example.com/oauth/token")
-	securityScheme.Scopes["write:pets"] = "modify pets in your account"
-	securityScheme.Scopes["read:pets"] = "read your pets"
 	api := swag.New(
-		swag.TitleOption("Example API Doc"),
-		swag.SecurityOption("petstore_auth", "read:pets"),
-		swag.SecuritySchemeOption("petstore_auth", securityScheme),
-		swag.EndpointsOption(post, get),
+		option.Title("Example API Doc"),
+		option.Security("petstore_auth", "read:pets"),
+		option.SecurityScheme("petstore_auth",
+			option.OAuth2Security("accessCode", "http://example.com/oauth/authorize", "http://example.com/oauth/token"),
+			option.OAuth2Scope("write:pets", "modify pets in your account"),
+			option.OAuth2Scope("read:pets", "read your pets"),
+		),
 	)
-	api.AddEndpoint(test)
+	api.AddEndpoint(
+		endpoint.New(
+			http.MethodPost, "/pet",
+			endpoint.Handler(handle),
+			endpoint.Summary("Add a new pet to the store"),
+			endpoint.Description("Additional information on adding a pet to the store"),
+			endpoint.Body(Pet{}, "Pet object that needs to be added to the store", true),
+			endpoint.Response(http.StatusOK, "Successfully added pet", endpoint.Schema(Pet{})),
+			endpoint.Security("petstore_auth", "read:pets", "write:pets"),
+		),
+		endpoint.New(
+			http.MethodGet, "/pet/{petId}",
+			endpoint.Handler(handle),
+			endpoint.Summary("Find pet by ID"),
+			endpoint.Path("petId", "integer", "ID of pet to return", true),
+			endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(Pet{})),
+			endpoint.Security("petstore_auth", "read:pets"),
+		),
+		endpoint.New(
+			http.MethodPut, "/pet/{petId}",
+			endpoint.Handler(handle),
+			endpoint.Path("petId", "integer", "ID of pet to return", true),
+			endpoint.Security("petstore_auth", "read:pets"),
+			endpoint.ResponseSuccess(endpoint.Schema(struct {
+				ID   string `json:"id"`
+				Name string `json:"name"`
+			}{})),
+		),
+	)
 
 	...
 }
