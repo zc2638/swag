@@ -71,12 +71,13 @@ api.Walk(func (path string, e *swag.Endpoint) {
 
 ```go
 func main() {
-    http.DefaultServeMux.Handle("/swagger/json", api.Handler())
-    patterns := swag.UIPatterns("/swagger/ui")
     handle := swag.UIHandler("/swagger/ui", "", false)
+    patterns := swag.UIPatterns("/swagger/ui")
     for _, pattern := range patterns {
         http.DefaultServeMux.Handle(pattern, handle)
     }
+
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }
 ```
 so you can visit for config: `http://localhost:8080/swagger/json`  
