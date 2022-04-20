@@ -10,3 +10,4 @@ require (
 )
 
 retract v0.1.0
+retract v1.2.0

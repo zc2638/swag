@@ -188,7 +188,7 @@ type API struct {
 	tags                []Tag
 }
 
-func (a *API) clone() *API {
+func (a *API) Clone() *API {
 	return &API{
 		Swagger:             a.Swagger,
 		Info:                a.Info,
@@ -334,7 +334,7 @@ func (a *API) Handler() http.HandlerFunc {
 		if scheme == "" {
 			scheme = "http"
 		}
-		doc := a.clone()
+		doc := a.Clone()
 		doc.Host = req.Host
 		doc.Schemes = []string{scheme}
 		ctr.OK(w, doc)

@@ -20,88 +20,95 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/zc2638/swag/types"
+
 	"github.com/zc2638/swag"
 )
 
-// Builder uses the builder pattern to generate swagger endpoint definitions
-type Builder struct {
-	Endpoint *swag.Endpoint
+// New constructs a new swagger endpoint using the fields and functional options provided
+func New(method, path string, options ...Option) *swag.Endpoint {
+	e := &swag.Endpoint{
+		Method:      strings.ToUpper(method),
+		Path:        path,
+		OperationID: strings.ToLower(method) + camel(path),
+		Produces:    []string{"application/json"},
+		Consumes:    []string{"application/json"},
+	}
+
+	for _, opt := range options {
+		opt(e)
+	}
+	return e
 }
 
 // Option represents a functional option to customize the swagger endpoint
-type Option func(builder *Builder)
-
-// Apply improves the readability of applied options
-func (o Option) Apply(builder *Builder) {
-	o(builder)
-}
+type Option func(e *swag.Endpoint)
 
 // Handler allows an instance of the web handler to be associated with the endpoint.  This can be especially useful when
 // using swag to bind the endpoints to the web router.  See the examples package for how the Handler can be used in
 // conjunction with Walk to simplify binding endpoints to a router
 func Handler(handler interface{}) Option {
-	return func(b *Builder) {
+	return func(e *swag.Endpoint) {
 		if v, ok := handler.(func(w http.ResponseWriter, r *http.Request)); ok {
 			handler = http.HandlerFunc(v)
 		}
-		b.Endpoint.Handler = handler
+		e.Handler = handler
 	}
 }
 
 // Summary sets the endpoint's summary
 func Summary(v string) Option {
-	return func(b *Builder) {
-		b.Endpoint.Summary = v
+	return func(e *swag.Endpoint) {
+		e.Summary = v
 	}
 }
 
 // Description sets the endpoint's description
 func Description(v string) Option {
-	return func(b *Builder) {
-		b.Endpoint.Description = v
+	return func(e *swag.Endpoint) {
+		e.Description = v
 	}
 }
 
 // OperationID sets the endpoint's operationId
 func OperationID(v string) Option {
-	return func(b *Builder) {
-		b.Endpoint.OperationID = v
+	return func(e *swag.Endpoint) {
+		e.OperationID = v
 	}
 }
 
 // Produces sets the endpoint's produces; by default this will be set to application/json
 func Produces(v ...string) Option {
-	return func(b *Builder) {
-		b.Endpoint.Produces = v
+	return func(e *swag.Endpoint) {
+		e.Produces = v
 	}
 }
 
 // Consumes sets the endpoint's produces; by default this will be set to application/json
 func Consumes(v ...string) Option {
-	return func(b *Builder) {
-		b.Endpoint.Consumes = v
+	return func(e *swag.Endpoint) {
+		e.Consumes = v
 	}
 }
 
 func parameter(p swag.Parameter) Option {
-	return func(b *Builder) {
-		if b.Endpoint.Parameters == nil {
-			b.Endpoint.Parameters = []swag.Parameter{}
+	return func(e *swag.Endpoint) {
+		if e.Parameters == nil {
+			e.Parameters = make([]swag.Parameter, 0)
 		}
-
-		b.Endpoint.Parameters = append(b.Endpoint.Parameters, p)
+		e.Parameters = append(e.Parameters, p)
 	}
 }
 
 // Path defines a path parameter for the endpoint; name, typ, description, and required correspond to the matching
 // swagger fields
-func Path(name, typ, description string, required bool) Option {
+func Path(name string, typ types.ParameterType, description string, required bool) Option {
 	return PathDefault(name, typ, description, "", required)
 }
 
 // PathDefault defines a path parameter for the endpoint; name, typ, description, and required correspond
 // to the matching swagger fields
-func PathDefault(name, typ, description, defVal string, required bool) Option {
+func PathDefault(name string, typ types.ParameterType, description, defVal string, required bool) Option {
 	p := swag.Parameter{
 		Name:        name,
 		In:          "path",
@@ -115,13 +122,13 @@ func PathDefault(name, typ, description, defVal string, required bool) Option {
 
 // Query defines a query parameter for the endpoint; name, typ, description, and required correspond
 // to the matching swagger fields
-func Query(name, typ, description string, required bool) Option {
+func Query(name string, typ types.ParameterType, description string, required bool) Option {
 	return QueryDefault(name, typ, description, "", required)
 }
 
 // QueryDefault defines a query parameter for the endpoint; name, typ, description, and required correspond
 // to the matching swagger fields
-func QueryDefault(name, typ, description, defVal string, required bool) Option {
+func QueryDefault(name string, typ types.ParameterType, description, defVal string, required bool) Option {
 	p := swag.Parameter{
 		Name:        name,
 		In:          "query",
@@ -129,6 +136,19 @@ func QueryDefault(name, typ, description, defVal string, required bool) Option {
 		Description: description,
 		Required:    required,
 		Default:     defVal,
+	}
+	return parameter(p)
+}
+
+// FormData defines a form-data parameter for the endpoint; name, typ, description, and required correspond
+// to the matching swagger fields
+func FormData(name string, typ types.ParameterType, description string, required bool) Option {
+	p := swag.Parameter{
+		In:          "formData",
+		Type:        typ,
+		Name:        name,
+		Description: description,
+		Required:    required,
 	}
 	return parameter(p)
 }
@@ -155,44 +175,38 @@ func BodyType(t reflect.Type, description string, required bool) Option {
 
 // Tags allows one or more tags to be associated with the endpoint
 func Tags(tags ...string) Option {
-	return func(b *Builder) {
-		if b.Endpoint.Tags == nil {
-			b.Endpoint.Tags = []string{}
+	return func(e *swag.Endpoint) {
+		if e.Tags == nil {
+			e.Tags = make([]string, 0)
 		}
-
-		b.Endpoint.Tags = append(b.Endpoint.Tags, tags...)
+		e.Tags = append(e.Tags, tags...)
 	}
 }
 
 // Security allows a security scheme to be associated with the endpoint.
 func Security(scheme string, scopes ...string) Option {
-	return func(b *Builder) {
-		if b.Endpoint.Security == nil {
-			b.Endpoint.Security = &swag.SecurityRequirement{}
+	return func(e *swag.Endpoint) {
+		if e.Security == nil {
+			e.Security = &swag.SecurityRequirement{}
 		}
 
-		if b.Endpoint.Security.Requirements == nil {
-			b.Endpoint.Security.Requirements = []map[string][]string{}
+		if e.Security.Requirements == nil {
+			e.Security.Requirements = []map[string][]string{}
 		}
 
-		b.Endpoint.Security.Requirements = append(b.Endpoint.Security.Requirements, map[string][]string{scheme: scopes})
+		e.Security.Requirements = append(e.Security.Requirements, map[string][]string{scheme: scopes})
 	}
 }
 
 // NoSecurity explicitly sets the endpoint to have no security requirements.
 func NoSecurity() Option {
-	return func(b *Builder) {
-		b.Endpoint.Security = &swag.SecurityRequirement{DisableSecurity: true}
+	return func(e *swag.Endpoint) {
+		e.Security = &swag.SecurityRequirement{DisableSecurity: true}
 	}
 }
 
 // ResponseOption allows for additional configurations on responses like header information
 type ResponseOption func(response *swag.Response)
-
-// Apply improves the readability of applied options
-func (o ResponseOption) Apply(response *swag.Response) {
-	o(response)
-}
 
 // Schema adds schema definitions to swagger responses
 func Schema(schema interface{}) ResponseOption {
@@ -218,17 +232,17 @@ func Header(name, typ, format, description string) ResponseOption {
 // ResponseType sets the endpoint response for the specified code; may be used multiple times with different status codes
 // t represents the Type of the response
 func ResponseType(code int, description string, opts ...ResponseOption) Option {
-	return func(b *Builder) {
-		if b.Endpoint.Responses == nil {
-			b.Endpoint.Responses = make(map[string]swag.Response)
+	return func(e *swag.Endpoint) {
+		if e.Responses == nil {
+			e.Responses = make(map[string]swag.Response)
 		}
 		r := swag.Response{
 			Description: description,
 		}
 		for _, opt := range opts {
-			opt.Apply(&r)
+			opt(&r)
 		}
-		b.Endpoint.Responses[strconv.Itoa(code)] = r
+		e.Responses[strconv.Itoa(code)] = r
 	}
 }
 
@@ -242,26 +256,7 @@ func ResponseSuccess(opts ...ResponseOption) Option {
 }
 
 func Deprecated() Option {
-	return func(b *Builder) {
-		b.Endpoint.Deprecated = true
+	return func(e *swag.Endpoint) {
+		e.Deprecated = true
 	}
-}
-
-// New constructs a new swagger endpoint using the fields and functional options provided
-func New(method, path string, options ...Option) *swag.Endpoint {
-	method = strings.ToUpper(method)
-	e := &Builder{
-		Endpoint: &swag.Endpoint{
-			Method:      method,
-			Path:        path,
-			OperationID: strings.ToLower(method) + camel(path),
-			Produces:    []string{"application/json"},
-			Consumes:    []string{"application/json"},
-		},
-	}
-
-	for _, opt := range options {
-		opt.Apply(e)
-	}
-	return e.Endpoint
 }

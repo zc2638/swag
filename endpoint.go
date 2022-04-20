@@ -14,7 +14,11 @@
 
 package swag
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/zc2638/swag/types"
+)
 
 // Items represents items from the swagger doc
 type Items struct {
@@ -47,14 +51,14 @@ type Response struct {
 
 // Parameter represents a parameter from the swagger doc
 type Parameter struct {
-	In          string  `json:"in,omitempty"`
-	Name        string  `json:"name,omitempty"`
-	Description string  `json:"description,omitempty"`
-	Required    bool    `json:"required"`
-	Schema      *Schema `json:"schema,omitempty"`
-	Type        string  `json:"type,omitempty"`
-	Format      string  `json:"format,omitempty"`
-	Default     string  `json:"default,omitempty"`
+	In          string              `json:"in,omitempty"`
+	Name        string              `json:"name,omitempty"`
+	Description string              `json:"description,omitempty"`
+	Required    bool                `json:"required"`
+	Schema      *Schema             `json:"schema,omitempty"`
+	Type        types.ParameterType `json:"type,omitempty"`
+	Format      string              `json:"format,omitempty"`
+	Default     string              `json:"default,omitempty"`
 }
 
 // Endpoint represents an endpoint from the swagger doc

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package endpoint_test
+package endpoint
 
 import (
 	"io"
@@ -20,20 +20,23 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/zc2638/swag/option"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/zc2638/swag"
-	"github.com/zc2638/swag/endpoint"
 )
 
 func Echo(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, "hello world")
+	_, _ = io.WriteString(w, "Hello World!")
 }
 
 func TestNew(t *testing.T) {
 	summary := "here's the summary"
-	e := endpoint.New("get", "/", endpoint.Summary(summary),
-		endpoint.Handler(Echo),
+	e := New(
+		"get", "/",
+		Summary(summary),
+		Handler(Echo),
 	)
 
 	assert.Equal(t, "GET", e.Method)
@@ -46,33 +49,40 @@ func TestNew(t *testing.T) {
 }
 
 func TestTags(t *testing.T) {
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Tags("blah"),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Tags("zc"),
 	)
-
-	assert.Equal(t, []string{"blah"}, e.Tags)
+	assert.Equal(t, []string{"zc"}, e.Tags)
 }
 
 func TestDescription(t *testing.T) {
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Description("blah"),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Description("zc"),
 	)
 
-	assert.Equal(t, "blah", e.Description)
+	assert.Equal(t, "zc", e.Description)
 }
 
 func TestOperationId(t *testing.T) {
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.OperationID("blah"),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		OperationID("zc"),
 	)
 
-	assert.Equal(t, "blah", e.OperationID)
+	assert.Equal(t, "zc", e.OperationID)
 }
 
 func TestProduces(t *testing.T) {
 	expected := []string{"a", "b"}
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Produces(expected...),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Produces(expected...),
 	)
 
 	assert.Equal(t, expected, e.Produces)
@@ -80,8 +90,10 @@ func TestProduces(t *testing.T) {
 
 func TestConsumes(t *testing.T) {
 	expected := []string{"a", "b"}
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Consumes(expected...),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Consumes(expected...),
 	)
 
 	assert.Equal(t, expected, e.Consumes)
@@ -96,8 +108,10 @@ func TestPath(t *testing.T) {
 		Type:        "string",
 	}
 
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Path(expected.Name, expected.Type, expected.Description, expected.Required),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Path(expected.Name, expected.Type, expected.Description, expected.Required),
 	)
 
 	assert.Equal(t, 1, len(e.Parameters))
@@ -113,8 +127,9 @@ func TestQuery(t *testing.T) {
 		Type:        "string",
 	}
 
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Query(expected.Name, expected.Type, expected.Description, expected.Required),
+	e := New("get", "/",
+		Summary("get thing"),
+		Query(expected.Name, expected.Type, expected.Description, expected.Required),
 	)
 
 	assert.Equal(t, 1, len(e.Parameters))
@@ -132,13 +147,15 @@ func TestBody(t *testing.T) {
 		Description: "the description",
 		Required:    true,
 		Schema: &swag.Schema{
-			Ref:       "#/definitions/endpoint_testModel",
+			Ref:       "#/definitions/endpointModel",
 			Prototype: reflect.TypeOf(Model{}),
 		},
 	}
 
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Body(Model{}, expected.Description, expected.Required),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Body(Model{}, expected.Description, expected.Required),
 	)
 
 	assert.Equal(t, 1, len(e.Parameters))
@@ -149,13 +166,15 @@ func TestResponse(t *testing.T) {
 	expected := swag.Response{
 		Description: "successful",
 		Schema: &swag.Schema{
-			Ref:       "#/definitions/endpoint_testModel",
+			Ref:       "#/definitions/endpointModel",
 			Prototype: Model{},
 		},
 	}
 
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Response(http.StatusOK, "successful", endpoint.Schema(Model{})),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Response(http.StatusOK, "successful", Schema(Model{})),
 	)
 
 	assert.Equal(t, 1, len(e.Responses))
@@ -176,9 +195,11 @@ func TestResponseHeader(t *testing.T) {
 		},
 	}
 
-	e := endpoint.New("get", "/", endpoint.Summary("get thing"),
-		endpoint.Response(http.StatusOK, "successful",
-			endpoint.Header("X-Rate-Limit", "integer", "int32", "calls per hour allowed by the user"),
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		Response(http.StatusOK, "successful",
+			Header("X-Rate-Limit", "integer", "int32", "calls per hour allowed by the user"),
 		),
 	)
 
@@ -188,8 +209,8 @@ func TestResponseHeader(t *testing.T) {
 
 func TestSecurityScheme(t *testing.T) {
 	api := swag.New(
-		swag.SecuritySchemeOption("basic", swag.BasicSecurity()),
-		swag.SecuritySchemeOption("apikey", swag.APIKeySecurity("Authorization", "header")),
+		option.SecurityScheme("basic", option.BasicSecurity()),
+		option.SecurityScheme("apikey", option.APIKeySecurity("Authorization", "header")),
 	)
 	assert.Len(t, api.SecurityDefinitions, 2)
 	assert.Contains(t, api.SecurityDefinitions, "basic")
@@ -198,10 +219,11 @@ func TestSecurityScheme(t *testing.T) {
 }
 
 func TestSecurity(t *testing.T) {
-	e := endpoint.New("get", "/",
-		endpoint.Handler(Echo),
-		endpoint.Security("basic"),
-		endpoint.Security("oauth2", "scope1", "scope2"),
+	e := New(
+		"get", "/",
+		Handler(Echo),
+		Security("basic"),
+		Security("oauth2", "scope1", "scope2"),
 	)
 	assert.False(t, e.Security.DisableSecurity)
 	assert.Len(t, e.Security.Requirements, 2)
@@ -211,9 +233,10 @@ func TestSecurity(t *testing.T) {
 }
 
 func TestNoSecurity(t *testing.T) {
-	e := endpoint.New("get", "/",
-		endpoint.Handler(Echo),
-		endpoint.NoSecurity(),
+	e := New(
+		"get", "/",
+		Handler(Echo),
+		NoSecurity(),
 	)
 	assert.True(t, e.Security.DisableSecurity)
 }

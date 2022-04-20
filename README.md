@@ -186,6 +186,22 @@ func main() {
 }
 ```
 
+### chi
+```go
+func main() {
+    ...
+
+    router := chi.NewRouter()
+    api.Walk(func(path string, e *swag.Endpoint) {
+        router.Method(e.Method, path, e.Handler.(http.Handler))
+    })
+    router.Handle("/swagger/json", api.Handler())
+    router.Mount("/swagger/ui", swag.UIHandler("/swagger/ui", "/swagger/json", true))
+    
+    http.ListenAndServe(":8080", router)
+}
+```
+
 ### mux
 ```go
 func main() {

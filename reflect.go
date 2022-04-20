@@ -17,14 +17,8 @@ package swag
 import (
 	"reflect"
 	"strings"
-)
 
-const (
-	TypeInteger = "integer"
-	TypeNumber  = "number"
-	TypeBoolean = "boolean"
-	TypeString  = "string"
-	TypeArray   = "array"
+	"github.com/zc2638/swag/types"
 )
 
 func inspect(t reflect.Type, jsonTag string) Property {
@@ -43,26 +37,26 @@ func inspect(t reflect.Type, jsonTag string) Property {
 
 	switch p.GoType.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint8, reflect.Uint16, reflect.Uint32:
-		p.Type = TypeInteger
+		p.Type = types.Integer.String()
 		p.Format = "int32"
 
 	case reflect.Int64, reflect.Uint64:
-		p.Type = TypeInteger
+		p.Type = types.Integer.String()
 		p.Format = "int64"
 
 	case reflect.Float64:
-		p.Type = TypeNumber
+		p.Type = types.Number.String()
 		p.Format = "double"
 
 	case reflect.Float32:
-		p.Type = TypeNumber
+		p.Type = types.Number.String()
 		p.Format = "float"
 
 	case reflect.Bool:
-		p.Type = TypeBoolean
+		p.Type = types.Boolean.String()
 
 	case reflect.String:
-		p.Type = TypeString
+		p.Type = types.String.String()
 
 	case reflect.Struct:
 		name := makeName(p.GoType)
@@ -74,7 +68,7 @@ func inspect(t reflect.Type, jsonTag string) Property {
 		p.Ref = makeRef(name)
 
 	case reflect.Slice:
-		p.Type = TypeArray
+		p.Type = types.Array.String()
 		p.Items = &Items{}
 
 		p.GoType = t.Elem() // dereference the slice
@@ -89,23 +83,23 @@ func inspect(t reflect.Type, jsonTag string) Property {
 			p.Items.Ref = makeRef(name)
 
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint8, reflect.Uint16, reflect.Uint32:
-			p.Items.Type = TypeInteger
+			p.Items.Type = types.Integer.String()
 			p.Items.Format = "int32"
 
 		case reflect.Int64, reflect.Uint64:
-			p.Items.Type = TypeInteger
+			p.Items.Type = types.Integer.String()
 			p.Items.Format = "int64"
 
 		case reflect.Float64:
-			p.Items.Type = TypeNumber
+			p.Items.Type = types.Number.String()
 			p.Items.Format = "double"
 
 		case reflect.Float32:
-			p.Items.Type = TypeNumber
+			p.Items.Type = types.Number.String()
 			p.Items.Format = "float"
 
 		case reflect.String:
-			p.Items.Type = TypeString
+			p.Items.Type = types.String.String()
 		}
 	}
 
