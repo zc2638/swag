@@ -44,7 +44,7 @@ allPets := endpoint.New("get", "/pet", "Return all the pets",
 ) 
 ```
 
-Refer to the [godoc](https://godoc.org/github.com/zc2638/swag/endpoint) for a list of all the endpoint options
+Refer to the [godoc](https://pkg.go.dev/github.com/zc2638/swag/endpoint) for a list of all the endpoint options
 
 ### Walk
 
