@@ -366,6 +366,11 @@ func UIPatterns(prefix string) []string {
 
 func UIHandler(prefix, uri string, autoDomain bool) http.Handler {
 	return http.StripPrefix(prefix, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "" {
+			url := strings.TrimSuffix(prefix, "/") + "/"
+			http.Redirect(w, r, url, http.StatusFound)
+			return
+		}
 		if r.URL.Path == "/" || r.URL.Path == "index.html" {
 			fullName := filepath.Join(asserts.DistDir, "index.html")
 			fileData, err := asserts.Dist.ReadFile(fullName)
