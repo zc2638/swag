@@ -24,7 +24,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/pkgms/go/ctr"
+	"github.com/99nil/gopkg/ctr"
 
 	"github.com/zc2638/swag/asserts"
 )
