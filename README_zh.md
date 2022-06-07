@@ -4,90 +4,44 @@
 [![GoDoc](https://godoc.org/github.com/zc2638/swag?status.svg)](https://godoc.org/github.com/zc2638/swag)
 [![Go Report Card](https://goreportcard.com/badge/github.com/zc2638/swag)](https://goreportcard.com/report/github.com/zc2638/swag)
 
-English | [简体中文](./README_zh.md)
+[English](./README.md) | 简体中文
 
-```swag``` is a lightweight library to generate swagger json for Golang projects.
+```swag``` 是一个轻量级的库，用于为 Golang 项目生成 `Swagger JSON`。
 
-```swag``` is heavily geared towards generating REST/JSON apis.
+```swag``` 主要用于生成 REST/JSON API接口。
 
-No code generation, no framework constraints, just a simple swagger definition.
+没有代码生成，没有框架约束，只是一个简单的 swagger 定义。
 
-## Dependency
+## 依赖
 
 Golang 1.16+
 
-## Installation
+## 安装
 
 ```shell
 go get -u github.com/zc2638/swag
 ```
 
-**Tip:** As of `v1.2.0`, lower versions are no longer compatible. In order to be compatible with most web frameworks,
-the overall architecture has been greatly changed.
+**Tip:** 从 `v1.2.0` 开始，低版本不再兼容。为了兼容大部分的web框架，整体架构做了很大的改动。
 
-### Endpoints
-
-```swag``` provides a separate package, ```endpoint```, to generate swagger endpoints. These endpoints can be passed
-to the swagger definition generate via ```swag.EndpointsOption(...)```
-
-In this simple example, we generate an endpoint to retrieve all pets. The only required fields for an endpoint
-are the method, path, and the summary.
-
-```go
-allPets := endpoint.New("get", "/pet", "Return all the pets") 
-```
-
-However, it'll probably be useful if you include definitions of what ```GET /pet``` returns:
-
-```go
-allPets := endpoint.New("get", "/pet", "Return all the pets",
-endpoint.Response(http.StatusOk, Pet{}, "Successful operation"),
-endpoint.Response(http.StatusInternalServerError, Error{}, "Oops ... something went wrong"),
-) 
-```
-
-Refer to the [godoc](https://pkg.go.dev/github.com/zc2638/swag/endpoint) for a list of all the endpoint options
-
-### Walk
-
-As a convenience to users, ```*swag.API``` implements a ```Walk``` method to simplify traversal of all the endpoints.
-See the complete example below for how ```Walk``` can be used to bind endpoints to the router.
-
-```go
-api := swag.New(
-option.Title("Swagger Petstore"),
-option.Endpoints(post, get),
-)
-
-// iterate over each endpoint, if we've defined a handler, we can use it to bind to the router.  We're using ```gin``
-// in this example, but any web framework will do.
-router := gin.New()
-api.Walk(func (path string, e *swag.Endpoint) {
-h := e.Handler.(func (c *gin.Context))
-path = swag.ColonPath(path)
-router.Handle(e.Method, path, h)
-})
-```
-
-## Default Swagger UI Server
+## 默认 Swagger UI 服务器
 
 ```go
 func main() {
-handle := swag.UIHandler("/swagger/ui", "", false)
-patterns := swag.UIPatterns("/swagger/ui")
-for _, pattern := range patterns {
-http.DefaultServeMux.Handle(pattern, handle)
-}
+    handle := swag.UIHandler("/swagger/ui", "", false)
+    patterns := swag.UIPatterns("/swagger/ui")
+    for _, pattern := range patterns {
+        http.DefaultServeMux.Handle(pattern, handle)
+    }
 
-log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }
 ```
-
-so you can visit for UI: `http://localhost:8080/swagger/ui`
+可以通过此地址访问 UI: `http://localhost:8080/swagger/ui`
 
 ## Examples
 
-### definition
+### 定义
 
 ```go
 package main
@@ -171,18 +125,18 @@ func main() {
 
 ```go
 func main() {
-...
-// Note: Built-in routes cannot automatically resolve path parameters.
-for p, endpoints := range api.Paths {
-http.DefaultServeMux.Handle(path.Join(api.BasePath, p), endpoints)
-}
-http.DefaultServeMux.Handle("/swagger/json", api.Handler())
-patterns := swag.UIPatterns("/swagger/ui")
-for _, pattern := range patterns {
-http.DefaultServeMux.Handle(pattern, swag.UIHandler("/swagger/ui", "/swagger/json", true))
-}
+    ...
+    // Note: Built-in routes cannot automatically resolve path parameters.
+    for p, endpoints := range api.Paths {
+        http.DefaultServeMux.Handle(path.Join(api.BasePath, p), endpoints)
+    }
+    http.DefaultServeMux.Handle("/swagger/json", api.Handler())
+    patterns := swag.UIPatterns("/swagger/ui")
+    for _, pattern := range patterns {
+        http.DefaultServeMux.Handle(pattern, swag.UIHandler("/swagger/ui", "/swagger/json", true))
+    }
 
-log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 ```
@@ -191,24 +145,24 @@ log.Fatal(http.ListenAndServe(":8080", nil))
 
 ```go
 func main() {
-...
+    ...
 
-router := gin.New()
-api.Walk(func (path string, e *swag.Endpoint) {
-h := e.Handler.(http.Handler)
-path = swag.ColonPath(path)
+    router := gin.New()
+    api.Walk(func (path string, e *swag.Endpoint) {
+        h := e.Handler.(http.Handler)
+        path = swag.ColonPath(path)
 
-router.Handle(e.Method, path, gin.WrapH(h))
-})
+        router.Handle(e.Method, path, gin.WrapH(h))
+    })
+    
+    // Register Swagger JSON route
+    router.GET("/swagger/json", gin.WrapH(api.Handler()))
+    
+    // Register Swagger UI route
+    // To take effect, the swagger json route must be registered
+    router.GET("/swagger/ui/*any", gin.WrapH(swag.UIHandler("/swagger/ui", "/swagger/json", true)))
 
-// Register Swagger JSON route
-router.GET("/swagger/json", gin.WrapH(api.Handler()))
-
-// Register Swagger UI route
-// To take effect, the swagger json route must be registered
-router.GET("/swagger/ui/*any", gin.WrapH(swag.UIHandler("/swagger/ui", "/swagger/json", true)))
-
-log.Fatal(http.ListenAndServe(":8080", router))
+    log.Fatal(http.ListenAndServe(":8080", router))
 }
 ```
 
@@ -216,16 +170,16 @@ log.Fatal(http.ListenAndServe(":8080", router))
 
 ```go
 func main() {
-...
+    ...
+    
+    router := chi.NewRouter()
+    api.Walk(func (path string, e *swag.Endpoint) {
+        router.Method(e.Method, path, e.Handler.(http.Handler))
+    })
+    router.Handle("/swagger/json", api.Handler())
+    router.Mount("/swagger/ui", swag.UIHandler("/swagger/ui", "/swagger/json", true))
 
-router := chi.NewRouter()
-api.Walk(func (path string, e *swag.Endpoint) {
-router.Method(e.Method, path, e.Handler.(http.Handler))
-})
-router.Handle("/swagger/json", api.Handler())
-router.Mount("/swagger/ui", swag.UIHandler("/swagger/ui", "/swagger/json", true))
-
-log.Fatal(http.ListenAndServe(":8080", router))
+    log.Fatal(http.ListenAndServe(":8080", router))
 }
 ```
 
@@ -233,18 +187,18 @@ log.Fatal(http.ListenAndServe(":8080", router))
 
 ```go
 func main() {
-...
+    ...
+    
+    router := mux.NewRouter()
+    api.Walk(func (path string, e *swag.Endpoint) {
+        h := e.Handler.(http.HandlerFunc)
+        router.Path(path).Methods(e.Method).Handler(h)
+    })
+    
+    router.Path("/swagger/json").Methods("GET").Handler(api.Handler())
+    router.PathPrefix("/swagger/ui").Handler(swag.UIHandler("/swagger/ui", "/swagger/json", true))
 
-router := mux.NewRouter()
-api.Walk(func (path string, e *swag.Endpoint) {
-h := e.Handler.(http.HandlerFunc)
-router.Path(path).Methods(e.Method).Handler(h)
-})
-
-router.Path("/swagger/json").Methods("GET").Handler(api.Handler())
-router.PathPrefix("/swagger/ui").Handler(swag.UIHandler("/swagger/ui", "/swagger/json", true))
-
-log.Fatal(http.ListenAndServe(":8080", router))
+    log.Fatal(http.ListenAndServe(":8080", router))
 }
 ```
 
@@ -252,39 +206,39 @@ log.Fatal(http.ListenAndServe(":8080", router))
 
 ```go
 func main() {
-...
+    ...
+    
+    router := echo.New()
+    api.Walk(func (path string, e *swag.Endpoint) {
+        h := echo.WrapHandler(e.Handler.(http.Handler))
+        path = swag.ColonPath(path)
+        
+        switch strings.ToLower(e.Method) {
+        case "get":
+            router.GET(path, h)
+        case "head":
+            router.HEAD(path, h)
+        case "options":
+            router.OPTIONS(path, h)
+        case "delete":
+            router.DELETE(path, h)
+        case "put":
+            router.PUT(path, h)
+        case "post":
+            router.POST(path, h)
+        case "trace":
+            router.TRACE(path, h)
+        case "patch":
+            router.PATCH(path, h)
+        case "connect":
+            router.CONNECT(path, h)
+        }
+    })
+    
+    router.GET("/swagger/json", echo.WrapHandler(api.Handler()))
+    router.GET("/swagger/ui/*", echo.WrapHandler(swag.UIHandler("/swagger/ui", "/swagger/json", true)))
 
-router := echo.New()
-api.Walk(func (path string, e *swag.Endpoint) {
-h := echo.WrapHandler(e.Handler.(http.Handler))
-path = swag.ColonPath(path)
-
-switch strings.ToLower(e.Method) {
-case "get":
-router.GET(path, h)
-case "head":
-router.HEAD(path, h)
-case "options":
-router.OPTIONS(path, h)
-case "delete":
-router.DELETE(path, h)
-case "put":
-router.PUT(path, h)
-case "post":
-router.POST(path, h)
-case "trace":
-router.TRACE(path, h)
-case "patch":
-router.PATCH(path, h)
-case "connect":
-router.CONNECT(path, h)
-}
-})
-
-router.GET("/swagger/json", echo.WrapHandler(api.Handler()))
-router.GET("/swagger/ui/*", echo.WrapHandler(swag.UIHandler("/swagger/ui", "/swagger/json", true)))
-
-log.Fatal(http.ListenAndServe(":8080", router))
+    log.Fatal(http.ListenAndServe(":8080", router))
 }
 ```
 
@@ -292,19 +246,19 @@ log.Fatal(http.ListenAndServe(":8080", router))
 
 ```go
 func main() {
-...
+    ...
+    
+    router := httprouter.New()
+    api.Walk(func (path string, e *swag.Endpoint) {
+        h := e.Handler.(http.Handler)
+        path = swag.ColonPath(path)
+        router.Handler(e.Method, path, h)
+    })
+    
+    router.Handler(http.MethodGet, "/swagger/json", api.Handler())
+    router.Handler(http.MethodGet, "/swagger/ui/*any", swag.UIHandler("/swagger/ui", "/swagger/json", true))
 
-router := httprouter.New()
-api.Walk(func (path string, e *swag.Endpoint) {
-h := e.Handler.(http.Handler)
-path = swag.ColonPath(path)
-router.Handler(e.Method, path, h)
-})
-
-router.Handler(http.MethodGet, "/swagger/json", api.Handler())
-router.Handler(http.MethodGet, "/swagger/ui/*any", swag.UIHandler("/swagger/ui", "/swagger/json", true))
-
-log.Fatal(http.ListenAndServe(":8080", router))
+    log.Fatal(http.ListenAndServe(":8080", router))
 }
 ```
 
