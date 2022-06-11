@@ -20,6 +20,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/99nil/gopkg/sets"
+
 	"github.com/zc2638/swag/types"
 
 	"github.com/zc2638/swag"
@@ -150,7 +152,13 @@ func FormData(name string, typ types.ParameterType, description string, required
 		Description: description,
 		Required:    required,
 	}
-	return parameter(p)
+	return func(e *swag.Endpoint) {
+		parameter(p)(e)
+
+		s := sets.NewString(e.Consumes...)
+		s.Add("multipart/form-data")
+		e.Consumes = s.List()
+	}
 }
 
 // Body defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
