@@ -102,14 +102,22 @@ func parameter(p swag.Parameter) Option {
 	}
 }
 
-// Path defines a path parameter for the endpoint; name, typ, description, and required correspond to the matching
-// swagger fields
+// Path defines a path parameter for the endpoint;
+// name, typ, description and required correspond to the matching swagger fields
 func Path(name string, typ types.ParameterType, description string, required bool) Option {
 	return PathDefault(name, typ, description, "", required)
 }
 
-// PathDefault defines a path parameter for the endpoint; name, typ, description, and required correspond
-// to the matching swagger fields
+// PathString defines a path parameter for the endpoint;
+// name and description correspond to the matching swagger fields,
+// type defaults to string,
+// required defaults to true.
+func PathString(name, description string) Option {
+	return PathDefault(name, types.String, description, "", true)
+}
+
+// PathDefault defines a path parameter for the endpoint;
+// name, typ, description, defVal and required correspond to the matching swagger fields
 func PathDefault(name string, typ types.ParameterType, description, defVal string, required bool) Option {
 	p := swag.Parameter{
 		Name:        name,
@@ -122,14 +130,22 @@ func PathDefault(name string, typ types.ParameterType, description, defVal strin
 	return parameter(p)
 }
 
-// Query defines a query parameter for the endpoint; name, typ, description, and required correspond
-// to the matching swagger fields
+// Query defines a query parameter for the endpoint;
+// name, typ, description and required correspond to the matching swagger fields
 func Query(name string, typ types.ParameterType, description string, required bool) Option {
 	return QueryDefault(name, typ, description, "", required)
 }
 
-// QueryDefault defines a query parameter for the endpoint; name, typ, description, and required correspond
-// to the matching swagger fields
+// QueryString defines a query parameter for the endpoint;
+// name and description correspond to the matching swagger fields,
+// type defaults to string,
+// required defaults to false.
+func QueryString(name, description string) Option {
+	return QueryDefault(name, types.String, description, "", false)
+}
+
+// QueryDefault defines a query parameter for the endpoint;
+// name, typ, description, defVal and required correspond to the matching swagger fields
 func QueryDefault(name string, typ types.ParameterType, description, defVal string, required bool) Option {
 	p := swag.Parameter{
 		Name:        name,
@@ -142,8 +158,8 @@ func QueryDefault(name string, typ types.ParameterType, description, defVal stri
 	return parameter(p)
 }
 
-// FormData defines a form-data parameter for the endpoint; name, typ, description, and required correspond
-// to the matching swagger fields
+// FormData defines a form-data parameter for the endpoint;
+// name, typ, description and required correspond to the matching swagger fields
 func FormData(name string, typ types.ParameterType, description string, required bool) Option {
 	p := swag.Parameter{
 		In:          "formData",

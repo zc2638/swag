@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/zc2638/swag/types"
+
 	"github.com/zc2638/swag/option"
 
 	"github.com/stretchr/testify/assert"
@@ -118,6 +120,25 @@ func TestPath(t *testing.T) {
 	assert.Equal(t, expected, e.Parameters[0])
 }
 
+func TestPathString(t *testing.T) {
+	expected := swag.Parameter{
+		In:          "path",
+		Name:        "id",
+		Description: "the description",
+		Required:    true,
+		Type:        "string",
+	}
+
+	e := New(
+		"get", "/",
+		Summary("get thing"),
+		PathString(expected.Name, expected.Description),
+	)
+
+	assert.Equal(t, 1, len(e.Parameters))
+	assert.Equal(t, expected, e.Parameters[0])
+}
+
 func TestQuery(t *testing.T) {
 	expected := swag.Parameter{
 		In:          "query",
@@ -130,6 +151,42 @@ func TestQuery(t *testing.T) {
 	e := New("get", "/",
 		Summary("get thing"),
 		Query(expected.Name, expected.Type, expected.Description, expected.Required),
+	)
+
+	assert.Equal(t, 1, len(e.Parameters))
+	assert.Equal(t, expected, e.Parameters[0])
+}
+
+func TestQueryString(t *testing.T) {
+	expected := swag.Parameter{
+		In:          "query",
+		Name:        "id",
+		Description: "the description",
+		Required:    false,
+		Type:        types.String,
+	}
+
+	e := New("get", "/",
+		Summary("get thing"),
+		QueryString(expected.Name, expected.Description),
+	)
+
+	assert.Equal(t, 1, len(e.Parameters))
+	assert.Equal(t, expected, e.Parameters[0])
+}
+
+func TestFormData(t *testing.T) {
+	expected := swag.Parameter{
+		In:          "formData",
+		Name:        "file",
+		Description: "the description",
+		Required:    true,
+		Type:        types.File,
+	}
+
+	e := New("post", "/",
+		Summary("upload file"),
+		FormData(expected.Name, types.File, expected.Description, expected.Required),
 	)
 
 	assert.Equal(t, 1, len(e.Parameters))
