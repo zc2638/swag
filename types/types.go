@@ -14,6 +14,11 @@
 
 package types
 
+import (
+	"context"
+	"net/http"
+)
+
 type ParameterType string
 
 func (pt ParameterType) String() string {
@@ -29,3 +34,49 @@ const (
 
 	File ParameterType = "file"
 )
+
+type contextKey int
+
+const (
+	RouteContextKey contextKey = iota
+)
+
+type Context struct {
+	PathParams map[string]string
+}
+
+// AddURLParamsToContext returns a copy of parent in which the context value is set
+func AddURLParamsToContext(parent context.Context, params map[string]string) context.Context {
+	routeVal := parent.Value(RouteContextKey)
+	routeCtx, ok := routeVal.(*Context)
+	if !ok {
+		routeCtx = &Context{}
+	}
+	if routeCtx.PathParams == nil {
+		routeCtx.PathParams = make(map[string]string)
+	}
+	for k, v := range params {
+		routeCtx.PathParams[k] = v
+	}
+	return context.WithValue(parent, RouteContextKey, routeCtx)
+}
+
+// URLParam returns the url parameter from a http.Request object.
+func URLParam(r *http.Request, key string) string {
+	return URLParamFromCtx(r.Context(), key)
+}
+
+// URLParamFromCtx returns the url parameter from a http.Request Context.
+func URLParamFromCtx(ctx context.Context, key string) string {
+	routeVal := ctx.Value(RouteContextKey)
+	routeCtx, ok := routeVal.(*Context)
+	if !ok {
+		return ""
+	}
+	for k, v := range routeCtx.PathParams {
+		if k == key {
+			return v
+		}
+	}
+	return ""
+}
