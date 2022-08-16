@@ -1,10 +1,10 @@
-// Copyright 2020 zc2638
+// Copyright © 2020 zc2638 <zc2638@qq.com>.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,24 @@ package swag
 
 import (
 	"fmt"
-	"github.com/modern-go/reflect2"
 	"path/filepath"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/modern-go/reflect2"
 )
 
 var (
 	rePath = regexp.MustCompile(`\{([^}]+)}`)
 )
 
-// ColonPath accepts a swagger path e.g. /api/orgs/{org} and returns a colon identified path e.g. /api/org/:org
+// ColonPath accepts a swagger path.
+//
+// e.g. /api/orgs/{org} and returns a colon identified path
+//
+// e.g. /api/org/:org
 func ColonPath(path string) string {
 	matches := rePath.FindAllStringSubmatch(path, -1)
 	for _, match := range matches {

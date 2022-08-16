@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 )
 
+// DirFS returns a http.FileSystem by the specified directory path and FS
 func DirFS(dir string, fsys fs.FS) http.FileSystem {
 	return dirFS{
 		dir: dir,

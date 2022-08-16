@@ -302,6 +302,16 @@ func (a *API) AddEndpoint(es ...*Endpoint) {
 	a.tags = nil
 }
 
+// AddOptions adds some options
+func (a *API) AddOptions(options ...Option) {
+	for _, option := range options {
+		option(a)
+	}
+}
+
+// AddEndpointFunc adds some options
+//
+// Deprecated: please use the new AddOptions method
 func (a *API) AddEndpointFunc(fs ...func(*API)) {
 	for _, f := range fs {
 		f(a)
@@ -351,6 +361,7 @@ func (a *API) Walk(callback func(path string, endpoints *Endpoint)) {
 	}
 }
 
+// UIPatterns returns a list of all the paths needed based on the path prefix
 func UIPatterns(prefix string) []string {
 	files, err := asserts.Dist.ReadDir(asserts.DistDir)
 	if err != nil {
@@ -364,6 +375,7 @@ func UIPatterns(prefix string) []string {
 	return patterns
 }
 
+// UIHandler returns a http.Handler by the specify path prefix and the full path
 func UIHandler(prefix, uri string, autoDomain bool) http.Handler {
 	return http.StripPrefix(prefix, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "" {
