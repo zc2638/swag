@@ -369,8 +369,8 @@ func (a *API) Handler() http.HandlerFunc {
 	}
 }
 
-// Walk invoke the callback for each endpoints defined in the swagger doc
-func (a *API) Walk(callback func(path string, endpoints *Endpoint)) {
+// Walk invoke the callback for each endpoint defined in the swagger doc
+func (a *API) Walk(callback func(path string, endpoint *Endpoint)) {
 	for rawPath, endpoints := range a.Paths {
 		u := path.Join(a.BasePath, rawPath)
 		endpoints.Walk(func(endpoint *Endpoint) {

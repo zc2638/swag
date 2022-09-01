@@ -132,7 +132,7 @@ func TestPathString(t *testing.T) {
 	e := New(
 		"get", "/",
 		Summary("get thing"),
-		PathString(expected.Name, expected.Description),
+		PathS(expected.Name, expected.Description),
 	)
 
 	assert.Equal(t, 1, len(e.Parameters))
@@ -168,7 +168,7 @@ func TestQueryString(t *testing.T) {
 
 	e := New("get", "/",
 		Summary("get thing"),
-		QueryString(expected.Name, expected.Description),
+		QueryS(expected.Name, expected.Description),
 	)
 
 	assert.Equal(t, 1, len(e.Parameters))
@@ -231,7 +231,7 @@ func TestResponse(t *testing.T) {
 	e := New(
 		"get", "/",
 		Summary("get thing"),
-		Response(http.StatusOK, "successful", Schema(Model{})),
+		Response(http.StatusOK, "successful", SchemaResponseOption(Model{})),
 	)
 
 	assert.Equal(t, 1, len(e.Responses))
@@ -256,7 +256,7 @@ func TestResponseHeader(t *testing.T) {
 		"get", "/",
 		Summary("get thing"),
 		Response(http.StatusOK, "successful",
-			Header("X-Rate-Limit", "integer", "int32", "calls per hour allowed by the user"),
+			HeaderResponseOption("X-Rate-Limit", "integer", "int32", "calls per hour allowed by the user"),
 		),
 	)
 

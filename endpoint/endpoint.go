@@ -108,11 +108,11 @@ func Path(name string, typ types.ParameterType, description string, required boo
 	return PathDefault(name, typ, description, "", required)
 }
 
-// PathString defines a path parameter for the endpoint;
+// PathS defines a path parameter for the endpoint;
 // name and description correspond to the matching swagger fields,
 // type defaults to string,
 // required defaults to true.
-func PathString(name, description string) Option {
+func PathS(name, description string) Option {
 	return PathDefault(name, types.String, description, "", true)
 }
 
@@ -136,11 +136,11 @@ func Query(name string, typ types.ParameterType, description string, required bo
 	return QueryDefault(name, typ, description, "", required)
 }
 
-// QueryString defines a query parameter for the endpoint;
+// QueryS defines a query parameter for the endpoint;
 // name and description correspond to the matching swagger fields,
 // type defaults to string,
 // required defaults to false.
-func QueryString(name, description string) Option {
+func QueryS(name, description string) Option {
 	return QueryDefault(name, types.String, description, "", false)
 }
 
@@ -180,13 +180,13 @@ func FormData(name string, typ types.ParameterType, description string, required
 // Body defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
 // prototype should be a struct or a pointer to struct that swag can use to reflect upon the return type
 func Body(prototype interface{}, description string, required bool) Option {
-	return BodyType(reflect.TypeOf(prototype), description, required)
+	return bodyType(reflect.TypeOf(prototype), description, required)
 }
 
-// BodyType defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
+// bodyType defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
 // prototype should be a struct or a pointer to struct that swag can use to reflect upon the return type
 // t represents the Type of the body
-func BodyType(t reflect.Type, description string, required bool) Option {
+func bodyType(t reflect.Type, description string, required bool) Option {
 	p := swag.Parameter{
 		In:          "body",
 		Name:        "body",
@@ -232,15 +232,15 @@ func NoSecurity() Option {
 // ResponseOption allows for additional configurations on responses like header information
 type ResponseOption func(response *swag.Response)
 
-// Schema adds schema definitions to swagger responses
-func Schema(schema interface{}) ResponseOption {
+// SchemaResponseOption adds schema definitions to swagger responses
+func SchemaResponseOption(schema interface{}) ResponseOption {
 	return func(response *swag.Response) {
 		response.Schema = swag.MakeSchema(schema)
 	}
 }
 
-// Header adds header definitions to swagger responses
-func Header(name, typ, format, description string) ResponseOption {
+// HeaderResponseOption adds header definitions to swagger responses
+func HeaderResponseOption(name string, typ types.ParameterType, format, description string) ResponseOption {
 	return func(response *swag.Response) {
 		if response.Headers == nil {
 			response.Headers = map[string]swag.Header{}
@@ -253,9 +253,22 @@ func Header(name, typ, format, description string) ResponseOption {
 	}
 }
 
-// ResponseType sets the endpoint response for the specified code; may be used multiple times with different status codes
-// t represents the Type of the response
-func ResponseType(code int, description string, opts ...ResponseOption) Option {
+// HeaderSResponseOption adds the string type header definitions to swagger responses
+func HeaderSResponseOption(name, description string) ResponseOption {
+	return func(response *swag.Response) {
+		if response.Headers == nil {
+			response.Headers = map[string]swag.Header{}
+		}
+		response.Headers[name] = swag.Header{
+			Type:        types.String,
+			Description: description,
+		}
+	}
+}
+
+// Response sets the endpoint response for the specified code;
+// may be used multiple times with different status codes
+func Response(code int, description string, opts ...ResponseOption) Option {
 	return func(e *swag.Endpoint) {
 		if e.Responses == nil {
 			e.Responses = make(map[string]swag.Response)
@@ -268,11 +281,6 @@ func ResponseType(code int, description string, opts ...ResponseOption) Option {
 		}
 		e.Responses[strconv.Itoa(code)] = r
 	}
-}
-
-// Response sets the endpoint response for the specified code; may be used multiple times with different status codes
-func Response(code int, description string, opts ...ResponseOption) Option {
-	return ResponseType(code, description, opts...)
 }
 
 func ResponseSuccess(opts ...ResponseOption) Option {
