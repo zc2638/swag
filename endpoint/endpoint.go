@@ -30,12 +30,12 @@ import (
 // New constructs a new swagger endpoint using the fields and functional options provided
 func New(method, path string, options ...Option) *swag.Endpoint {
 	e := &swag.Endpoint{
-		Method:      strings.ToUpper(method),
-		Path:        path,
-		OperationID: strings.ToLower(method) + camel(path),
-		Produces:    []string{"application/json"},
-		Consumes:    []string{"application/json"},
+		Method:   strings.ToUpper(method),
+		Path:     path,
+		Produces: []string{"application/json"},
+		Consumes: []string{"application/json"},
 	}
+	e.BuildOperationID()
 
 	for _, opt := range options {
 		opt(e)

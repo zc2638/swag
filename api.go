@@ -185,7 +185,9 @@ type API struct {
 	Host                string                    `json:"host,omitempty"`
 	SecurityDefinitions map[string]SecurityScheme `json:"securityDefinitions,omitempty"`
 	Security            *SecurityRequirement      `json:"security,omitempty"`
-	tags                []Tag
+
+	tags       []Tag
+	prefixPath string
 }
 
 func (a *API) Clone() *API {
@@ -270,6 +272,11 @@ func (a *API) addDefinition(e *Endpoint) {
 	}
 }
 
+func (a *API) clean() {
+	a.tags = nil
+	a.prefixPath = ""
+}
+
 func (a *API) WithTags(tags ...Tag) *API {
 	for _, v := range tags {
 		exists := false
@@ -284,22 +291,34 @@ func (a *API) WithTags(tags ...Tag) *API {
 		}
 		a.Tags = append(a.Tags, v)
 	}
-	a.tags = tags
+	a.tags = append(a.tags, tags...)
 	return a
 }
 
-// AddEndpoint adds the specified endpoint to the API definition; to generate an endpoint use ```endpoint.New```
+func (a *API) WithTag(name, description string) *API {
+	return a.WithTags(Tag{Name: name, Description: description})
+}
+
+func (a *API) WithGroup(prefixPath string) *API {
+	a.prefixPath = prefixPath
+	return a
+}
+
+// AddEndpoint adds the specified endpoint to the API definition;
+// to generate an endpoint use ```endpoint.New```
 func (a *API) AddEndpoint(es ...*Endpoint) {
 	tags := make([]string, 0, len(a.tags))
 	for _, tag := range a.tags {
 		tags = append(tags, tag.Name)
 	}
 	for _, e := range es {
+		e.Path = path.Join(a.prefixPath, e.Path)
 		e.Tags = append(e.Tags, tags...)
+		e.BuildOperationID()
 		a.addPath(e)
 		a.addDefinition(e)
 	}
-	a.tags = nil
+	a.clean()
 }
 
 // AddOptions adds some options
@@ -316,7 +335,6 @@ func (a *API) AddEndpointFunc(fs ...func(*API)) {
 	for _, f := range fs {
 		f(a)
 	}
-	a.tags = nil
 }
 
 func (a *API) AddTag(name, description string) {

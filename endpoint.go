@@ -16,6 +16,7 @@ package swag
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/zc2638/swag/types"
 )
@@ -78,6 +79,10 @@ type Endpoint struct {
 	// swagger spec requires security to be an array of objects
 	Security   *SecurityRequirement `json:"security,omitempty"`
 	Deprecated bool                 `json:"deprecated,omitempty"`
+}
+
+func (e *Endpoint) BuildOperationID() {
+	e.OperationID = strings.ToLower(e.Method) + camel(e.Path)
 }
 
 type SecurityRequirement struct {

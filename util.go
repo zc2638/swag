@@ -26,7 +26,8 @@ import (
 )
 
 var (
-	rePath = regexp.MustCompile(`\{([^}]+)}`)
+	rePath         = regexp.MustCompile(`\{([^}]+)}`)
+	reAlphaNumeric = regexp.MustCompile(`[^0-9a-zA-Z]`)
 )
 
 // ColonPath accepts a swagger path.
@@ -40,6 +41,22 @@ func ColonPath(path string) string {
 		path = strings.Replace(path, match[0], ":"+match[1], -1)
 	}
 	return path
+}
+
+func camel(v string) string {
+	segments := strings.Split(v, "/")
+	results := make([]string, 0, len(segments))
+
+	for _, segment := range segments {
+		v := reAlphaNumeric.ReplaceAllString(segment, "")
+		if v == "" {
+			continue
+		}
+
+		results = append(results, strings.ToUpper(v[0:1])+v[1:])
+	}
+
+	return strings.Join(results, "")
 }
 
 func makeRef(name string) string {

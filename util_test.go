@@ -29,6 +29,11 @@ func TestColonPath(t *testing.T) {
 	assert.Equal(t, "/api/:a/:b/:c", ColonPath("/api/{a}/{b}/{c}"))
 }
 
+func TestCamel(t *testing.T) {
+	assert.Equal(t, "HelloWorld", camel("hello/world"))
+	assert.Equal(t, "UsersUser", camel("/users/{user}"))
+}
+
 func getPtrString(t reflect.Type) string {
 	ptr := reflect2.PtrOf(t)
 	return ".ptr" + strconv.FormatUint(uint64(uintptr(ptr)), 10)
