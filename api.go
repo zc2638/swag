@@ -325,6 +325,7 @@ func (a *API) AddEndpoint(es ...*Endpoint) {
 func (a *API) AddOptions(options ...Option) {
 	for _, option := range options {
 		option(a)
+		a.clean()
 	}
 }
 
@@ -333,7 +334,7 @@ func (a *API) AddOptions(options ...Option) {
 // Deprecated: please use the new AddOptions method
 func (a *API) AddEndpointFunc(fs ...func(*API)) {
 	for _, f := range fs {
-		f(a)
+		a.AddOptions(f)
 	}
 }
 
