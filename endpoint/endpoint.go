@@ -108,6 +108,12 @@ func Path(name string, typ types.ParameterType, description string, required boo
 	return PathDefault(name, typ, description, "", required)
 }
 
+// PathString is the same as PathS.
+// Deprecated.
+func PathString(name, description string) Option {
+	return PathS(name, description)
+}
+
 // PathS defines a path parameter for the endpoint;
 // name and description correspond to the matching swagger fields,
 // type defaults to string,
@@ -134,6 +140,12 @@ func PathDefault(name string, typ types.ParameterType, description, defVal strin
 // name, typ, description and required correspond to the matching swagger fields
 func Query(name string, typ types.ParameterType, description string, required bool) Option {
 	return QueryDefault(name, typ, description, "", required)
+}
+
+// QueryString is the same as QueryS.
+// Deprecated.
+func QueryString(name, description string) Option {
+	return QueryS(name, description)
 }
 
 // QueryS defines a query parameter for the endpoint;
