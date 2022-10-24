@@ -251,6 +251,10 @@ func SchemaResponseOption(schema interface{}) ResponseOption {
 	}
 }
 
+// Schema is the same as SchemaResponseOption.
+// Deprecated.
+var Schema = SchemaResponseOption
+
 // HeaderResponseOption adds header definitions to swagger responses
 func HeaderResponseOption(name string, typ types.ParameterType, format, description string) ResponseOption {
 	return func(response *swag.Response) {
