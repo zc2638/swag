@@ -17,10 +17,9 @@ package swag
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
-	"testing"
-
 	"fmt"
+	"os"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -52,7 +51,7 @@ func TestDefine(t *testing.T) {
 	assert.Equal(t, 8, len(obj.Properties))
 
 	content := make(map[string]Object)
-	data, err := ioutil.ReadFile("testdata/pet.json")
+	data, err := os.ReadFile("testdata/pet.json")
 	assert.Nil(t, err)
 	err = json.NewDecoder(bytes.NewReader(data)).Decode(&content)
 	assert.Nil(t, err)
