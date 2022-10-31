@@ -28,15 +28,28 @@ type Person struct {
 	First string
 }
 
+type Anonymous struct {
+	AnyOne string
+}
+
 type Pet struct {
-	Friend      Person    `json:"friend"`
-	Friends     []Person  `json:"friends"`
-	Pointer     *Person   `json:"pointer" required:"true"`
-	Pointers    []*Person `json:"pointers"`
-	Int         int
-	IntArray    []int
-	String      string
-	StringArray []string
+	Friend          Person    `json:"friend" desc:"description short expression"`
+	Friends         []Person  `json:"friends" description:"long desc"`
+	Pointer         *Person   `json:"pointer" required:"true"`
+	Pointers        []*Person `json:"pointers"`
+	Int             int
+	IntArray        []int
+	Int64Array      []int64
+	String          string
+	StringSecondWay string `json:"StringSecondWay,string"`
+	StringArray     []string
+	Float           float32
+	FloatArray      []float32
+	Double          float64
+	DoubleArray     []float64
+	Bool            bool
+	Enum            string `json:"enum" enum:"a,b,c" example:"b"`
+	Anonymous
 }
 
 type Empty struct {
@@ -48,7 +61,7 @@ func TestDefine(t *testing.T) {
 	obj, ok := v["swagPet"]
 	assert.True(t, ok)
 	assert.False(t, obj.IsArray)
-	assert.Equal(t, 8, len(obj.Properties))
+	assert.Equal(t, 17, len(obj.Properties))
 
 	content := make(map[string]Object)
 	data, err := os.ReadFile("testdata/pet.json")
@@ -121,4 +134,9 @@ func TestHonorJsonIgnore(t *testing.T) {
 	assert.True(t, ok)
 	assert.False(t, obj.IsArray)
 	assert.Equal(t, 0, len(obj.Properties), "expected zero exposed properties")
+}
+
+func TestMakeSchema(t *testing.T) {
+	sliceSchema := MakeSchema([]string{})
+	assert.Equal(t, "array", sliceSchema.Type, "expect array type but get %s", sliceSchema.Type)
 }

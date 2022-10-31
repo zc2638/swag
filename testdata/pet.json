@@ -7,6 +7,14 @@
       }
     }
   },
+  "Anonymous": {
+    "type": "object",
+    "properties": {
+      "AnyOne": {
+        "type": "string"
+      }
+    }
+  },
   "swagPet": {
     "type": "object",
     "required": [
@@ -24,7 +32,17 @@
           "format": "int32"
         }
       },
+      "Int64Array": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
       "String": {
+        "type": "string"
+      },
+      "StringSecondWay": {
         "type": "string"
       },
       "StringArray": {
@@ -33,11 +51,46 @@
           "type": "string"
         }
       },
+      "Float": {
+        "type": "number",
+        "format": "float"
+      },
+      "FloatArray": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "Double": {
+        "type": "number",
+        "format": "double"
+      },
+      "DoubleArray": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "Bool": {
+        "type": "boolean"
+      },
+      "AnyOne": {
+        "type": "string"
+      },
+      "enum": {
+        "type": "string",
+        "enum": ["a","b","c"],
+        "example": "b"
+      },
       "friend": {
-        "$ref": "#/definitions/swagPerson"
+        "$ref": "#/definitions/swagPerson",
+        "description": "description short expression"
       },
       "friends": {
         "type": "array",
+        "description": "long desc",
         "items": {
           "$ref": "#/definitions/swagPerson"
         }
