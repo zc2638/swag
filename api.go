@@ -345,7 +345,7 @@ func (a *API) AddTag(name, description string) {
 	})
 }
 
-// Handler is a factory method that generates an http.HandlerFunc; if enableCors is true, then the handler will generate
+// Handler is a factory method that generates a http.HandlerFunc; if enableCors is true, then the handler will generate
 // cors headers
 func (a *API) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
