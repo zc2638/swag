@@ -26,10 +26,19 @@ jobs:
       - name: Install Dependencies
         run: go get -v -t -d ./...
 
-      - name: Test
-        run: go test -v ./...
-
       - name: Lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
+
+      - name: Test and Coverage
+        run: go test -v -race -coverprofile=coverage.out -covermode=atomic -coverpkg=./... ./...
+
+      - name: Publish Unit Test Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          name: swag
+          flags: all
+          files: ./coverage.out
+          fail_ci_if_error: true
+          verbose: true
