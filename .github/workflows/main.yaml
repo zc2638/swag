@@ -6,22 +6,22 @@ on:
     tags:
   pull_request:
 
+strategy:
+  matrix:
+    go-version: [ 1.16.x ]
+    platform: [ ubuntu-latest ]
+
 jobs:
-  verify:
-    name: Verify Project
-    strategy:
-      matrix:
-        go-version: [ 1.16.x ]
-        platform: [ ubuntu-latest ]
+  lint:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
 
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Dependencies
         run: go get -v -t -d ./...
@@ -30,6 +30,20 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
+
+  unit-tests:
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: go get -v -t -d ./...
 
       - name: Test and Coverage
         run: go test -v -race -coverprofile=coverage.out -covermode=atomic -coverpkg=./... ./...
