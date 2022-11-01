@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"path/filepath"
 	"testing"
 
 	"github.com/zc2638/swag/asserts"
@@ -26,11 +27,11 @@ func TestDirFS(t *testing.T) {
 		{
 			name: "embed",
 			args: args{
-				dir:  "/swagger",
+				dir:  asserts.DistDir,
 				fsys: asserts.Dist,
 			},
 			want: dirFS{
-				dir: "/swagger",
+				dir: asserts.DistDir,
 				fs:  http.FS(asserts.Dist),
 			},
 		},
@@ -43,6 +44,11 @@ func TestDirFS(t *testing.T) {
 }
 
 func Test_dirFS_Open(t *testing.T) {
+	file, err := http.FS(asserts.Dist).Open(filepath.Join(asserts.DistDir, "index.html"))
+	if err != nil {
+		t.Errorf("open asserts failed: %v", err)
+	}
+
 	type fields struct {
 		dir string
 		fs  http.FileSystem
@@ -57,7 +63,18 @@ func Test_dirFS_Open(t *testing.T) {
 		want    http.File
 		wantErr assert.ErrorAssertionFunc
 	}{
-		// TODO: Add test cases.
+		{
+			name: "",
+			fields: fields{
+				dir: asserts.DistDir,
+				fs:  http.FS(asserts.Dist),
+			},
+			args: args{
+				name: "index.html",
+			},
+			want:    file,
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool { return err == nil },
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
