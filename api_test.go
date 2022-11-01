@@ -342,3 +342,46 @@ func TestUIPatterns(t *testing.T) {
 		})
 	}
 }
+
+func TestAPI_Walk(t *testing.T) {
+	type fields struct {
+		Endpoints []*Endpoint
+	}
+	type args struct {
+		fn func(rawPath string, endpoint *Endpoint)
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name: "normal",
+			fields: fields{
+				Endpoints: []*Endpoint{
+					{Path: "/test", Method: http.MethodGet},
+					{Path: "/test", Method: http.MethodPost},
+					{Path: "/test", Method: http.MethodPut},
+					{Path: "/test", Method: http.MethodPatch},
+					{Path: "/test", Method: http.MethodDelete},
+					{Path: "/test", Method: http.MethodHead},
+					{Path: "/test", Method: http.MethodOptions},
+					{Path: "/test", Method: http.MethodTrace},
+					{Path: "/test", Method: http.MethodConnect},
+				},
+			},
+			args: args{
+				fn: func(rawPath string, e *Endpoint) {
+					assert.Equal(t, "/test", rawPath, "API_Walk()")
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := New()
+			api.AddEndpoint()
+			api.Walk(tt.args.fn)
+		})
+	}
+}
