@@ -15,6 +15,8 @@
 package swag
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -521,4 +523,31 @@ func TestAPI_Walk(t *testing.T) {
 			api.Walk(tt.args.fn)
 		})
 	}
+}
+
+func TestAPI_Handler(t *testing.T) {
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	New().Handler().ServeHTTP(w, r)
+
+	api := New()
+	api.Schemes = []string{"http"}
+	api.Host = "example.com"
+	expected, _ := json.Marshal(api)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, fmt.Sprintf("%s\n", expected), w.Body.String())
+}
+
+func TestAPI_HandlerTLS(t *testing.T) {
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "https://example.com", nil)
+	r.Header.Set("X-Forwarded-Proto", "https")
+	New().Handler().ServeHTTP(w, r)
+
+	api := New()
+	api.Schemes = []string{"https"}
+	api.Host = "example.com"
+	expected, _ := json.Marshal(api)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, fmt.Sprintf("%s\n", expected), w.Body.String())
 }
