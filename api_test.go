@@ -343,6 +343,143 @@ func TestUIPatterns(t *testing.T) {
 	}
 }
 
+func TestAPI_addPath(t *testing.T) {
+	type args struct {
+		e *Endpoint
+	}
+	tests := []struct {
+		name string
+		args args
+		want *API
+	}{
+		{
+			name: "get",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodGet},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Get: &Endpoint{Path: "/test", Method: http.MethodGet},
+					},
+				},
+			},
+		},
+		{
+			name: "post",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodPost},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Post: &Endpoint{Path: "/test", Method: http.MethodPost},
+					},
+				},
+			},
+		},
+		{
+			name: "put",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodPut},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Put: &Endpoint{Path: "/test", Method: http.MethodPut},
+					},
+				},
+			},
+		},
+		{
+			name: "patch",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodPatch},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Patch: &Endpoint{Path: "/test", Method: http.MethodPatch},
+					},
+				},
+			},
+		},
+		{
+			name: "delete",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodDelete},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Delete: &Endpoint{Path: "/test", Method: http.MethodDelete},
+					},
+				},
+			},
+		},
+		{
+			name: "head",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodHead},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Head: &Endpoint{Path: "/test", Method: http.MethodHead},
+					},
+				},
+			},
+		},
+		{
+			name: "options",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodOptions},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Options: &Endpoint{Path: "/test", Method: http.MethodOptions},
+					},
+				},
+			},
+		},
+		{
+			name: "trace",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodTrace},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Trace: &Endpoint{Path: "/test", Method: http.MethodTrace},
+					},
+				},
+			},
+		},
+		{
+			name: "connect",
+			args: args{
+				e: &Endpoint{Path: "/test", Method: http.MethodConnect},
+			},
+			want: &API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Connect: &Endpoint{Path: "/test", Method: http.MethodConnect},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := &API{}
+			actual.addPath(tt.args.e)
+			assert.Equal(t, tt.want, actual, "API_addPath()")
+		})
+	}
+}
+
 func TestAPI_Walk(t *testing.T) {
 	type fields struct {
 		Endpoints []*Endpoint
