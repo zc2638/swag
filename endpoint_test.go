@@ -3,7 +3,6 @@
 package swag
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -129,7 +128,7 @@ func TestSecurityRequirement_MarshalJSON(t *testing.T) {
 				DisableSecurity: tt.fields.DisableSecurity,
 			}
 			got, err := s.MarshalJSON()
-			if !tt.wantErr(t, err, fmt.Sprintf("MarshalJSON()")) {
+			if !tt.wantErr(t, err, "MarshalJSON()") {
 				return
 			}
 			assert.Equalf(t, string(tt.want), string(got), "MarshalJSON()")
