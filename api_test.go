@@ -104,10 +104,10 @@ func TestAPI_AddOptions(t *testing.T) {
 					Description:    "Describe your API",
 					Title:          "Your API Title",
 					Version:        "SNAPSHOT",
-					TermsOfService: "http://swagger.io/terms/",
+					TermsOfService: "https://swagger.io/terms/",
 					License: License{
 						Name: "Apache 2.0",
-						URL:  "http://www.apache.org/licenses/LICENSE-2.0.html",
+						URL:  "https://www.apache.org/licenses/LICENSE-2.0.html",
 					},
 				},
 			},
@@ -146,10 +146,10 @@ func TestAPI_AddTag(t *testing.T) {
 					Description:    "Describe your API",
 					Title:          "Your API Title",
 					Version:        "SNAPSHOT",
-					TermsOfService: "http://swagger.io/terms/",
+					TermsOfService: "https://swagger.io/terms/",
 					License: License{
 						Name: "Apache 2.0",
-						URL:  "http://www.apache.org/licenses/LICENSE-2.0.html",
+						URL:  "https://www.apache.org/licenses/LICENSE-2.0.html",
 					},
 				},
 				Tags: []Tag{
