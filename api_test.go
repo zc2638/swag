@@ -122,6 +122,49 @@ func TestAPI_AddOptions(t *testing.T) {
 	}
 }
 
+func TestAPI_NewWithOptions(t *testing.T) {
+	type args struct {
+		options []Option
+	}
+	tests := []struct {
+		name string
+		args args
+		want *API
+	}{
+		{
+			name: "base path",
+			args: args{
+				options: []Option{
+					func(api *API) {
+						api.BasePath = "/test"
+					},
+				},
+			},
+			want: &API{
+				BasePath: "/test",
+				Swagger:  "2.0",
+				Schemes:  []string{"http"},
+				Info: Info{
+					Description:    "Describe your API",
+					Title:          "Your API Title",
+					Version:        "SNAPSHOT",
+					TermsOfService: "https://swagger.io/terms/",
+					License: License{
+						Name: "Apache 2.0",
+						URL:  "https://www.apache.org/licenses/LICENSE-2.0.html",
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := New(tt.args.options...)
+			assert.Equal(t, tt.want, actual)
+		})
+	}
+}
+
 func TestAPI_AddTag(t *testing.T) {
 	type args struct {
 		name        string
