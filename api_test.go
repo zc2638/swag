@@ -594,3 +594,34 @@ func TestAPI_HandlerTLS(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, fmt.Sprintf("%s\n", expected), w.Body.String())
 }
+
+func TestAPI_WithTags(t *testing.T) {
+	type args struct {
+		tags []Tag
+	}
+	tests := []struct {
+		name string
+		args args
+		want []Tag
+	}{
+		{
+			name: "normal",
+			args: args{
+				tags: []Tag{{Name: "tag1", Description: "desc1", Docs: nil},
+					{Name: "tag2", Description: "desc2", Docs: nil}},
+			},
+			want: []Tag{
+				{Name: "tag1", Description: "desc1", Docs: nil},
+				{Name: "tag2", Description: "desc2", Docs: nil},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := New()
+			api.Tags = []Tag{{Name: "tag1", Description: "desc1", Docs: nil}}
+			api.WithTags(tt.args.tags...)
+			assert.Equal(t, api.tags, tt.want, "API_WithTags()")
+		})
+	}
+}
