@@ -625,3 +625,58 @@ func TestAPI_WithTags(t *testing.T) {
 		})
 	}
 }
+
+func TestAPI_AddEndpoint(t *testing.T) {
+	type args struct {
+		es []*Endpoint
+	}
+	tests := []struct {
+		name string
+		args args
+		want API
+	}{
+		{
+			name: "normal",
+			args: args{
+				es: []*Endpoint{
+					{
+						Tags:        nil,
+						Path:        "/test",
+						Method:      http.MethodGet,
+						Summary:     "summary",
+						Description: "desc",
+						Parameters:  nil,
+						Responses:   nil,
+					},
+				},
+			},
+			want: API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Get: &Endpoint{
+							Tags:        []string{"tag1"},
+							Path:        "/test",
+							Method:      http.MethodGet,
+							Summary:     "summary",
+							Description: "desc",
+							OperationID: "getTest",
+							Parameters:  nil,
+							Responses:   nil,
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := New().WithTags(Tag{
+				Name:        "tag1",
+				Description: "desc1",
+			})
+
+			a.AddEndpoint(tt.args.es...)
+			assert.Equal(t, tt.want.Paths["/test"], a.Paths["/test"], "API_AddEndpoint() Paths")
+		})
+	}
+}
