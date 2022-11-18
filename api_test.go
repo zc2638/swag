@@ -680,3 +680,75 @@ func TestAPI_AddEndpoint(t *testing.T) {
 		})
 	}
 }
+
+func TestAPI_WithGroup(t *testing.T) {
+	type args struct {
+		prefixPath string
+		endPoint   Endpoint
+	}
+	tests := []struct {
+		name string
+		args args
+		want Endpoint
+	}{
+		{
+			name: "normal",
+			args: args{
+				prefixPath: "/prefix",
+				endPoint: Endpoint{
+					Tags:        nil,
+					Path:        "/test",
+					Method:      http.MethodGet,
+					Summary:     "summary",
+					Description: "desc",
+				},
+			},
+			want: Endpoint{
+				Tags:        nil,
+				Path:        "/prefix/test",
+				Method:      http.MethodGet,
+				Summary:     "summary",
+				Description: "desc",
+				OperationID: "getPrefixTest",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := New().WithGroup(tt.args.prefixPath)
+			a.AddEndpoint(&tt.args.endPoint)
+			assert.Equalf(t, tt.want, *a.Paths["/prefix/test"].Get, "WithGroup(%v)", tt.args.prefixPath)
+		})
+	}
+}
+
+func TestAPI_WithTag(t *testing.T) {
+	type args struct {
+		name        string
+		description string
+	}
+	tests := []struct {
+		name string
+		args args
+		want Tag
+	}{
+		{
+			name: "normal",
+			args: args{
+				name:        "tag1",
+				description: "desc1",
+			},
+			want: Tag{
+				Name:        "tag1",
+				Description: "desc1",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := New().WithTag(tt.args.name, tt.args.description)
+			assert.Equal(t, 1, len(a.Tags), "API_WithTag() Tags len")
+			assert.Equal(t, tt.want, a.Tags[0], "API_WithTag() Tag")
+		})
+	}
+}
