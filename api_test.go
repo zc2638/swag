@@ -23,6 +23,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/zc2638/swag/types"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -645,8 +647,16 @@ func TestAPI_AddEndpoint(t *testing.T) {
 						Method:      http.MethodGet,
 						Summary:     "summary",
 						Description: "desc",
-						Parameters:  nil,
-						Responses:   nil,
+						Parameters: []Parameter{
+							{
+								Schema: MakeSchema(types.String),
+							},
+						},
+						Responses: map[string]Response{
+							"string": {
+								Schema: MakeSchema(types.String),
+							},
+						},
 					},
 				},
 			},
@@ -660,8 +670,54 @@ func TestAPI_AddEndpoint(t *testing.T) {
 							Summary:     "summary",
 							Description: "desc",
 							OperationID: "getTest",
-							Parameters:  nil,
-							Responses:   nil,
+							Parameters: []Parameter{
+								{
+									Schema: MakeSchema(types.String),
+								},
+							},
+							Responses: map[string]Response{
+								"string": {
+									Schema: MakeSchema(types.String),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "normal-withResponse",
+			args: args{
+				es: []*Endpoint{
+					{
+						Tags:        nil,
+						Path:        "/test",
+						Method:      http.MethodGet,
+						Summary:     "summary",
+						Description: "desc",
+						Responses: map[string]Response{
+							"string": {
+								Schema: MakeSchema(types.String),
+							},
+						},
+					},
+				},
+			},
+			want: API{
+				Paths: map[string]*Endpoints{
+					"/test": {
+						Get: &Endpoint{
+							Tags:        []string{"tag1"},
+							Path:        "/test",
+							Method:      http.MethodGet,
+							Summary:     "summary",
+							Description: "desc",
+							OperationID: "getTest",
+							Responses: map[string]Response{
+								"string": {
+									Schema: MakeSchema(types.String),
+								},
+							},
 						},
 					},
 				},
