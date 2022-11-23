@@ -17,7 +17,7 @@ package swag
 import (
 	"io/fs"
 	"net/http"
-	"path/filepath"
+	"path"
 )
 
 // DirFS returns a http.FileSystem by the specified directory path and FS
@@ -34,5 +34,5 @@ type dirFS struct {
 }
 
 func (f dirFS) Open(name string) (http.File, error) {
-	return f.fs.Open(filepath.Join(f.dir, name))
+	return f.fs.Open(path.Join(f.dir, name))
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
-	"path/filepath"
+	"path"
 	"testing"
 
 	"github.com/zc2638/swag/asserts"
@@ -44,7 +44,7 @@ func TestDirFS(t *testing.T) {
 }
 
 func Test_dirFS_Open(t *testing.T) {
-	file, err := http.FS(asserts.Dist).Open(filepath.Join(asserts.DistDir, "index.html"))
+	file, err := http.FS(asserts.Dist).Open(path.Join(asserts.DistDir, "index.html"))
 	if err != nil {
 		t.Errorf("open asserts failed: %v", err)
 	}

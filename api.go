@@ -20,7 +20,6 @@ import (
 	"io"
 	"net/http"
 	"path"
-	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -403,7 +402,7 @@ func UIHandler(prefix, uri string, autoDomain bool) http.Handler {
 			return
 		}
 		if r.URL.Path == "/" || r.URL.Path == "index.html" {
-			fullName := filepath.Join(asserts.DistDir, "index.html")
+			fullName := path.Join(asserts.DistDir, "index.html")
 			fileData, err := asserts.Dist.ReadFile(fullName)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
