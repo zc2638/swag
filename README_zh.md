@@ -388,7 +388,7 @@ func main() {
 		currentPath := strings.TrimPrefix(string(ctx.Path()), "/swagger/ui")
 
 		if currentPath == "/" || currentPath == "index.html" {
-			fullName := filepath.Join(asserts.DistDir, "index.html")
+			fullName := path.Join(asserts.DistDir, "index.html")
 			fileData, err := asserts.Dist.ReadFile(fullName)
 			if err != nil {
 				ctx.Error("index.html read exception", http.StatusInternalServerError)
