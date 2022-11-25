@@ -19,7 +19,7 @@ Golang 1.16+
 ## 安装
 
 ```shell
-go get -u github.com/zc2638/swag
+go get -u github.com/zc2638/swag@v1.4.2
 ```
 
 **Tip:** 从 `v1.2.0` 开始，低版本不再兼容。为了兼容大部分的web框架，整体架构做了很大的改动。
