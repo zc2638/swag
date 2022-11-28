@@ -58,7 +58,7 @@ type Empty struct {
 
 func TestDefine(t *testing.T) {
 	v := define(Pet{})
-	obj, ok := v["swagPet"]
+	obj, ok := v["swag.Pet"]
 	assert.True(t, ok)
 	assert.False(t, obj.IsArray)
 	assert.Equal(t, 17, len(obj.Properties))
@@ -68,7 +68,7 @@ func TestDefine(t *testing.T) {
 	assert.Nil(t, err)
 	err = json.NewDecoder(bytes.NewReader(data)).Decode(&content)
 	assert.Nil(t, err)
-	expected := content["swagPet"]
+	expected := content["swag.Pet"]
 
 	assert.Equal(t, expected.IsArray, obj.IsArray, "expected IsArray to match")
 	assert.Equal(t, expected.Type, obj.Type, "expected Type to match")
@@ -130,7 +130,7 @@ func TestNotStructDefine(t *testing.T) {
 
 func TestHonorJsonIgnore(t *testing.T) {
 	v := define(Empty{})
-	obj, ok := v["swagEmpty"]
+	obj, ok := v["swag.Empty"]
 	assert.True(t, ok)
 	assert.False(t, obj.IsArray)
 	assert.Equal(t, 0, len(obj.Properties), "expected zero exposed properties")
