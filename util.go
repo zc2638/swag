@@ -69,6 +69,6 @@ func makeName(t reflect.Type) string {
 		ptr := reflect2.PtrOf(t)
 		name = "ptr" + strconv.FormatUint(uint64(uintptr(ptr)), 10)
 	}
-	full := filepath.Base(t.PkgPath()) + name
+	full := filepath.Base(t.PkgPath()) + "." + name
 	return strings.Replace(full, "-", "_", -1)
 }
