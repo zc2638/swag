@@ -204,7 +204,7 @@ func TestBody(t *testing.T) {
 		Description: "the description",
 		Required:    true,
 		Schema: &swag.Schema{
-			Ref:       "#/definitions/endpointModel",
+			Ref:       "#/definitions/endpoint.Model",
 			Prototype: reflect.TypeOf(Model{}),
 		},
 	}
@@ -223,7 +223,7 @@ func TestResponse(t *testing.T) {
 	expected := swag.Response{
 		Description: "successful",
 		Schema: &swag.Schema{
-			Ref:       "#/definitions/endpointModel",
+			Ref:       "#/definitions/endpoint.Model",
 			Prototype: Model{},
 		},
 	}

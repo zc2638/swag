@@ -1,5 +1,5 @@
 {
-  "swagPerson": {
+  "swag.Person": {
     "type": "object",
     "properties": {
       "First": {
@@ -15,7 +15,7 @@
       }
     }
   },
-  "swagPet": {
+  "swag.Pet": {
     "type": "object",
     "required": [
       "pointer"
@@ -85,23 +85,23 @@
         "example": "b"
       },
       "friend": {
-        "$ref": "#/definitions/swagPerson",
+        "$ref": "#/definitions/swag.Person",
         "description": "description short expression"
       },
       "friends": {
         "type": "array",
         "description": "long desc",
         "items": {
-          "$ref": "#/definitions/swagPerson"
+          "$ref": "#/definitions/swag.Person"
         }
       },
       "pointer": {
-        "$ref": "#/definitions/swagPerson"
+        "$ref": "#/definitions/swag.Person"
       },
       "pointers": {
         "type": "array",
         "items": {
-          "$ref": "#/definitions/swagPerson"
+          "$ref": "#/definitions/swag.Person"
         }
       }
     }
