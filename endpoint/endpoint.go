@@ -180,17 +180,14 @@ func FormData(name string, typ types.ParameterType, description string, required
 	return func(e *swag.Endpoint) {
 		parameter(p)(e)
 
-		set := map[string]struct{}{
-			"multipart/form-data": {},
-		}
+		list := make([]string, 0, len(e.Consumes)+1)
 		for _, v := range e.Consumes {
-			set[v] = struct{}{}
+			if v == "multipart/form-data" {
+				continue
+			}
+			list = append(list, v)
 		}
-
-		list := make([]string, 0, len(set))
-		for item := range set {
-			list = append(list, item)
-		}
+		list = append(list, "multipart/form-data")
 		e.Consumes = list
 	}
 }
