@@ -183,14 +183,23 @@ func TestFormData(t *testing.T) {
 		Required:    true,
 		Type:        types.File,
 	}
+	expected2 := swag.Parameter{
+		In:          "formData",
+		Name:        "file2",
+		Description: "the description2",
+		Required:    true,
+		Type:        types.File,
+	}
 
 	e := New("post", "/",
 		Summary("upload file"),
 		FormData(expected.Name, types.File, expected.Description, expected.Required),
+		FormData(expected2.Name, types.File, expected2.Description, expected2.Required),
 	)
 
-	assert.Equal(t, 1, len(e.Parameters))
+	assert.Equal(t, 2, len(e.Parameters))
 	assert.Equal(t, expected, e.Parameters[0])
+	assert.Equal(t, expected2, e.Parameters[1])
 }
 
 type Model struct {
