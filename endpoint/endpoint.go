@@ -20,11 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/99nil/gopkg/sets"
-
-	"github.com/zc2638/swag/types"
-
 	"github.com/zc2638/swag"
+	"github.com/zc2638/swag/types"
 )
 
 // New constructs a new swagger endpoint using the fields and functional options provided
@@ -183,9 +180,15 @@ func FormData(name string, typ types.ParameterType, description string, required
 	return func(e *swag.Endpoint) {
 		parameter(p)(e)
 
-		s := sets.NewString(e.Consumes...)
-		s.Add("multipart/form-data")
-		e.Consumes = s.List()
+		list := make([]string, 0, len(e.Consumes)+1)
+		for _, v := range e.Consumes {
+			if v == "multipart/form-data" {
+				continue
+			}
+			list = append(list, v)
+		}
+		list = append(list, "multipart/form-data")
+		e.Consumes = list
 	}
 }
 

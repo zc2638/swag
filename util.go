@@ -16,7 +16,7 @@ package swag
 
 import (
 	"fmt"
-	"path/filepath"
+	"path"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -69,7 +69,7 @@ func makeName(t reflect.Type) string {
 		ptr := reflect2.PtrOf(t)
 		name = "ptr" + strconv.FormatUint(uint64(uintptr(ptr)), 10)
 	}
-	pkgPath := filepath.Base(t.PkgPath())
+	pkgPath := path.Base(t.PkgPath())
 	if pkgPath != "." {
 		pkgPath += "."
 	}

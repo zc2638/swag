@@ -16,14 +16,13 @@ package swag
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"path"
 	"reflect"
 	"strings"
-
-	"github.com/99nil/gopkg/ctr"
 
 	"github.com/zc2638/swag/asserts"
 )
@@ -365,7 +364,10 @@ func (a *API) Handler() http.HandlerFunc {
 		doc := a.Clone()
 		doc.Host = req.Host
 		doc.Schemes = []string{scheme}
-		ctr.OK(w, doc)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(doc)
 	}
 }
 
