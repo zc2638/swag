@@ -20,8 +20,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/99nil/gopkg/sets"
-
 	"github.com/zc2638/swag/types"
 
 	"github.com/zc2638/swag"
@@ -183,9 +181,18 @@ func FormData(name string, typ types.ParameterType, description string, required
 	return func(e *swag.Endpoint) {
 		parameter(p)(e)
 
-		s := sets.NewString(e.Consumes...)
-		s.Add("multipart/form-data")
-		e.Consumes = s.List()
+		set := map[string]struct{}{
+			"multipart/form-data": {},
+		}
+		for _, v := range e.Consumes {
+			set[v] = struct{}{}
+		}
+
+		list := make([]string, 0, len(set))
+		for item := range set {
+			list = append(list, item)
+		}
+		e.Consumes = list
 	}
 }
 
