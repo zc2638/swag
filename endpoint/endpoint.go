@@ -20,9 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/zc2638/swag/types"
-
 	"github.com/zc2638/swag"
+	"github.com/zc2638/swag/types"
 )
 
 // New constructs a new swagger endpoint using the fields and functional options provided
