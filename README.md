@@ -21,7 +21,7 @@ Golang 1.16+
 ## Installation
 
 ```shell
-go get -u github.com/zc2638/swag@v1.4.2
+go get -u github.com/zc2638/swag@v1.4.3
 ```
 
 **Tip:** As of `v1.2.0`, lower versions are no longer compatible. In order to be compatible with most web frameworks,
