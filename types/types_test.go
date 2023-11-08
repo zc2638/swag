@@ -5,6 +5,7 @@ package types
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -137,7 +138,7 @@ func TestAddURLParamsToContext(t *testing.T) {
 }
 
 func TestURLParam(t *testing.T) {
-	req, _ := http.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	ctx := AddURLParamsToContext(req.Context(), map[string]string{
 		"name": "zc",
 	})

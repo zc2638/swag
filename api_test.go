@@ -29,7 +29,7 @@ import (
 )
 
 func TestEndpoints_ServeHTTPNotFound(t *testing.T) {
-	req, _ := http.NewRequest(http.MethodGet, "http://localhost", nil)
+	req := httptest.NewRequest(http.MethodGet, "http://localhost", nil)
 	w := httptest.NewRecorder()
 
 	var es Endpoints
@@ -71,9 +71,7 @@ func TestEndpoints_ServeHTTP(t *testing.T) {
 		http.MethodConnect,
 	}
 	for _, method := range methods {
-		req, err := http.NewRequest(strings.ToUpper(method), "http://localhost", nil)
-		assert.Nil(t, err)
-
+		req := httptest.NewRequest(strings.ToUpper(method), "http://localhost", nil)
 		w := httptest.NewRecorder()
 		es.ServeHTTP(w, req)
 		assert.Equal(t, strings.ToUpper(w.Body.String()), strings.ToUpper(method))
