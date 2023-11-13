@@ -31,7 +31,9 @@ func TestColonPath(t *testing.T) {
 
 func TestCamel(t *testing.T) {
 	assert.Equal(t, "HelloWorld", camel("hello/world"))
-	assert.Equal(t, "UsersUser", camel("/users/{user}"))
+	assert.Equal(t, "HelloWorld", camel("/hello/world"))
+	assert.Equal(t, "HelloWorld", camel("hello/{world}"))
+	assert.Equal(t, "HelloWorld", camel("/hello/{world}"))
 }
 
 func getPtrString(t reflect.Type) string {
