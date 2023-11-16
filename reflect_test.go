@@ -136,7 +136,10 @@ func TestHonorJsonIgnore(t *testing.T) {
 	assert.Equal(t, 0, len(obj.Properties), "expected zero exposed properties")
 }
 
-func TestMakeSchema(t *testing.T) {
+func TestMakeSchemaType(t *testing.T) {
 	sliceSchema := MakeSchema([]string{})
 	assert.Equal(t, "array", sliceSchema.Type, "expect array type but get %s", sliceSchema.Type)
+
+	objSchema := MakeSchema(struct{}{})
+	assert.Equal(t, "", objSchema.Type, "expect array type but get %s", objSchema.Type)
 }
