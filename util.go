@@ -32,8 +32,7 @@ var (
 
 // ColonPath accepts a swagger path.
 //
-// e.g. /api/orgs/{org} and returns a colon identified path
-//
+// e.g. /api/org/{org} and returns a colon identified path
 // e.g. /api/org/:org
 func ColonPath(path string) string {
 	matches := rePath.FindAllStringSubmatch(path, -1)

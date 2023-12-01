@@ -78,3 +78,8 @@ func Test_makeName(t *testing.T) {
 		})
 	}
 }
+
+func Test_makeRef(t *testing.T) {
+	assert.Equal(t, "#/definitions/test1", makeRef("test1"))
+	assert.Equal(t, "#/definitions/HelloWorld", makeRef("HelloWorld"))
+}
