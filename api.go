@@ -41,7 +41,19 @@ type Object struct {
 
 // Property represents the property entity from the swagger definition
 type Property struct {
-	GoType      reflect.Type `json:"-"`
+	GoType       reflect.Type          `json:"-"`
+	Type         string                `json:"type,omitempty"`
+	Description  string                `json:"description,omitempty"`
+	Enum         []string              `json:"enum,omitempty"`
+	Format       string                `json:"format,omitempty"`
+	Ref          string                `json:"$ref,omitempty"`
+	Example      string                `json:"example,omitempty"`
+	Items        *Items                `json:"items,omitempty"`
+	AddPropertie *AdditionalProperties `json:"additionalProperties,omitempty"`
+}
+
+type AdditionalProperties struct {
+	GoType      reflect.Type `json:"-,omitempty"`
 	Type        string       `json:"type,omitempty"`
 	Description string       `json:"description,omitempty"`
 	Enum        []string     `json:"enum,omitempty"`

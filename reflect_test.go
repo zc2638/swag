@@ -143,3 +143,20 @@ func TestMakeSchemaType(t *testing.T) {
 	objSchema := MakeSchema(struct{}{})
 	assert.Equal(t, "", objSchema.Type, "expect array type but get %s", objSchema.Type)
 }
+
+type PetCat struct {
+	MapSlicePtr       map[string][]*string
+	MapSlice          map[string][]string
+	MapSliceStructPtr map[string][]*Person
+	MapSliceStruct    map[string][]Person
+	SliceStructPtr    *[]*Person
+	SliceStruct       *[]Person
+	SliceStringPtr    *[]*string
+	SliceString       *[]string
+}
+
+func TestDefineWithNewType(t *testing.T) {
+	v := define(PetCat{})
+	b, _ := json.Marshal(v)
+	fmt.Printf("result:%v\n", string(b))
+}

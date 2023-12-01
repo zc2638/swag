@@ -67,16 +67,40 @@ func inspect(t reflect.Type, jsonTag string) Property {
 		name := makeName(p.GoType)
 		p.Ref = makeRef(name)
 
+	case reflect.Map:
+		p.Type = "object"
+		p.AddPropertie = buildMapType(p.GoType)
+
 	case reflect.Slice:
 		p.Type = types.Array.String()
 		p.Items = &Items{}
 
-		p.GoType = t.Elem() // dereference the slice
+		// dereference the slice,get the element object of the slice
+		// Example:
+		//    t ==> *[]*Struct|Struct|*string|string
+		//    p.GoType.Kind() ==> []*Struct|Struct|*string|string
+		if p.GoType.Kind() == reflect.Slice {
+			//p.GoType ==> *Struct|Struct|*string|string
+			p.GoType = p.GoType.Elem()
+		}
+
 		switch p.GoType.Kind() {
 		case reflect.Ptr:
+			//p.GoType ==> Struct|string
 			p.GoType = p.GoType.Elem()
-			name := makeName(p.GoType)
-			p.Items.Ref = makeRef(name)
+
+			// determine the type of element object in the slice
+			isPrimitive := isPrimitiveType(p.GoType.Name(), p.GoType)
+
+			if isPrimitive {
+				// golang built-in primitive type
+				kind_type := jsonSchemaType(p.GoType.String(), p.GoType)
+				p.Items.Type = kind_type
+			} else {
+				// Struct types
+				name := makeName(p.GoType)
+				p.Items.Ref = makeRef(name)
+			}
 
 		case reflect.Struct:
 			name := makeName(p.GoType)
@@ -104,6 +128,126 @@ func inspect(t reflect.Type, jsonTag string) Property {
 	}
 
 	return p
+}
+
+// buildMapType build map type swag info
+func buildMapType(mapType reflect.Type) *AdditionalProperties {
+
+	prop := AdditionalProperties{}
+
+	// get the element object of the map
+	// Example:
+	//	mapType ==> map[string][]*Struct|Struct|*string|string
+	//  or mapTYpe ==> map[string]*Struct|Struct|*string|string
+	//	mapType.Elem().Kind() ==> []*Struct|Struct|*string|string
+	//  or mapType.Elem().Kind() ==> *Struct|Struct|*string|string
+	if mapType.Elem().Kind().String() != "interface" {
+		isSlice := isSliceOrArryType(mapType.Elem().Kind())
+		if isSlice || isByteArrayType(mapType.Elem()) {
+			// Example:
+			//   mapType.Elem()==> []*Struct|Struct|*string|string
+			mapType = mapType.Elem()
+		}
+
+		isPrimitive := isPrimitiveType(mapType.Elem().Name(), mapType.Elem())
+
+		if isByteArrayType(mapType.Elem()) {
+			prop.Type = "string"
+		} else {
+			if isSlice {
+				prop.Type = types.Array.String()
+				prop.Items = &Items{}
+				if isPrimitive {
+					prop.Items.Type = jsonSchemaType(mapType.Elem().String(), mapType.Elem())
+				} else {
+					prop.Items.Ref = makeMapRef(mapType.Elem().String())
+				}
+			} else if isPrimitive {
+				prop.Type = jsonSchemaType(mapType.Elem().String(), mapType.Elem())
+			} else {
+				prop.Ref = makeMapRef(mapType.Elem().String())
+			}
+		}
+	}
+
+	return &prop
+}
+
+func makeMapRef(typeName string) string {
+	type_name := strings.Trim(typeName, "*")
+	return makeRef(type_name)
+}
+
+func isSliceOrArryType(t reflect.Kind) bool {
+	return t == reflect.Slice || t == reflect.Array
+}
+
+func isByteArrayType(t reflect.Type) bool {
+	return (t.Kind() == reflect.Slice || t.Kind() == reflect.Array) &&
+		t.Elem().Kind() == reflect.Uint8
+}
+
+// isPrimitiveType Whether it is a built-in primitive type
+func isPrimitiveType(modelName string, modelType reflect.Type) bool {
+	var modelKind reflect.Kind
+
+	if modelType.Kind() == reflect.Ptr {
+		modelKind = modelType.Elem().Kind()
+	} else {
+		modelKind = modelType.Kind()
+	}
+
+	switch modelKind {
+	case reflect.Bool:
+		return true
+	case reflect.Float32, reflect.Float64,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
+	case reflect.String:
+		return true
+	}
+
+	if len(modelName) == 0 {
+		return false
+	}
+
+	return strings.Contains("time.Time time.Duration json.Number", modelName)
+}
+
+func jsonSchemaType(modelName string, modelType reflect.Type) string {
+	var modelKind reflect.Kind
+
+	if modelType.Kind() == reflect.Ptr {
+		modelKind = modelType.Elem().Kind()
+	} else {
+		modelKind = modelType.Kind()
+	}
+
+	schemaMap := map[string]string{
+		"time.Time":     "string",
+		"time.Duration": "integer",
+		"json.Number":   "number",
+	}
+
+	if mapped, ok := schemaMap[modelName]; ok {
+		return mapped
+	}
+
+	// check if original type is primitive
+	switch modelKind {
+	case reflect.Bool:
+		return "boolean"
+	case reflect.Float32, reflect.Float64:
+		return "number"
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return "integer"
+	case reflect.String:
+		return "string"
+	}
+
+	return modelName // use as is (custom or struct)
 }
 
 func buildProperty(t reflect.Type) (map[string]Property, []string) {
