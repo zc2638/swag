@@ -192,6 +192,12 @@ func FormData(name string, typ types.ParameterType, description string, required
 	}
 }
 
+// BodyR defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
+// prototype should be a struct or a pointer to struct that swag can use to reflect upon the return type
+func BodyR(prototype interface{}) Option {
+	return bodyType(reflect.TypeOf(prototype), "", true)
+}
+
 // Body defines a body parameter for the swagger endpoint as would commonly be used for the POST, PUT, and PATCH methods
 // prototype should be a struct or a pointer to struct that swag can use to reflect upon the return type
 func Body(prototype interface{}, description string, required bool) Option {
