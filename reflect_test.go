@@ -50,6 +50,24 @@ type Pet struct {
 	Bool            bool
 	Enum            string `json:"enum" enum:"a,b,c" example:"b"`
 	Anonymous
+	MapSlicePtr       map[string][]*string
+	MapSlice          map[string][]string
+	MapSliceStructPtr map[string][]*Person
+	MapSliceStruct    map[string][]Person
+	SliceStructPtr    *[]*Person
+	SliceStruct       *[]Person
+	SliceStringPtr    *[]*string
+	SliceString       *[]string
+	MapNestOptions    *MapObj `json:"map_nest_options,omitempty"`
+}
+
+type MapObj struct {
+	RuleOptions map[string]*MapOption `json:"rule_options"`
+}
+
+type MapOption struct {
+	Name       string                `json:"name"`
+	SubOptions map[string]*MapOption `json:"sub_options,omitempty"`
 }
 
 type Empty struct {
@@ -61,7 +79,7 @@ func TestDefine(t *testing.T) {
 	obj, ok := v["swag.Pet"]
 	assert.True(t, ok)
 	assert.False(t, obj.IsArray)
-	assert.Equal(t, 17, len(obj.Properties))
+	assert.Equal(t, 26, len(obj.Properties))
 
 	content := make(map[string]Object)
 	data, err := os.ReadFile("testdata/pet.json")
@@ -142,21 +160,4 @@ func TestMakeSchemaType(t *testing.T) {
 
 	objSchema := MakeSchema(struct{}{})
 	assert.Equal(t, "", objSchema.Type, "expect array type but get %s", objSchema.Type)
-}
-
-type PetCat struct {
-	MapSlicePtr       map[string][]*string
-	MapSlice          map[string][]string
-	MapSliceStructPtr map[string][]*Person
-	MapSliceStruct    map[string][]Person
-	SliceStructPtr    *[]*Person
-	SliceStruct       *[]Person
-	SliceStringPtr    *[]*string
-	SliceString       *[]string
-}
-
-func TestDefineWithNewType(t *testing.T) {
-	v := define(PetCat{})
-	b, _ := json.Marshal(v)
-	fmt.Printf("result:%v\n", string(b))
 }

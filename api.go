@@ -53,7 +53,7 @@ type Property struct {
 }
 
 type AdditionalProperties struct {
-	GoType      reflect.Type `json:"-,omitempty"`
+	GoType      reflect.Type `json:"-"`
 	Type        string       `json:"type,omitempty"`
 	Description string       `json:"description,omitempty"`
 	Enum        []string     `json:"enum,omitempty"`

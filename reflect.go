@@ -15,10 +15,9 @@
 package swag
 
 import (
+	"github.com/zc2638/swag/types"
 	"reflect"
 	"strings"
-
-	"github.com/zc2638/swag/types"
 )
 
 func inspect(t reflect.Type, jsonTag string) Property {
@@ -70,6 +69,8 @@ func inspect(t reflect.Type, jsonTag string) Property {
 	case reflect.Map:
 		p.Type = "object"
 		p.AddPropertie = buildMapType(p.GoType)
+		// get the go reflect type of the map value
+		p.GoType = p.AddPropertie.GoType
 
 	case reflect.Slice:
 		p.Type = types.Array.String()
@@ -144,11 +145,15 @@ func buildMapType(mapType reflect.Type) *AdditionalProperties {
 	if mapType.Elem().Kind().String() != "interface" {
 		isSlice := isSliceOrArryType(mapType.Elem().Kind())
 		if isSlice || isByteArrayType(mapType.Elem()) {
+			// if map value is slice
 			// Example:
 			//   mapType.Elem()==> []*Struct|Struct|*string|string
 			mapType = mapType.Elem()
 		}
 
+		// if map value is struct or built-in primitive type
+		// Example:
+		//    mapType.Elem()==> *Struct|Struct|*string|string
 		isPrimitive := isPrimitiveType(mapType.Elem().Name(), mapType.Elem())
 
 		if isByteArrayType(mapType.Elem()) {
@@ -159,18 +164,35 @@ func buildMapType(mapType reflect.Type) *AdditionalProperties {
 				prop.Items = &Items{}
 				if isPrimitive {
 					prop.Items.Type = jsonSchemaType(mapType.Elem().String(), mapType.Elem())
+					prop.GoType = getGoType(mapType.Elem())
 				} else {
 					prop.Items.Ref = makeMapRef(mapType.Elem().String())
+					prop.GoType = getGoType(mapType.Elem())
 				}
 			} else if isPrimitive {
 				prop.Type = jsonSchemaType(mapType.Elem().String(), mapType.Elem())
+				prop.GoType = getGoType(mapType.Elem())
 			} else {
 				prop.Ref = makeMapRef(mapType.Elem().String())
+				prop.GoType = getGoType(mapType.Elem())
 			}
 		}
 	}
 
 	return &prop
+}
+
+func getGoType(t reflect.Type) reflect.Type {
+
+	var goType reflect.Type
+
+	if t.Kind() == reflect.Ptr {
+		goType = t.Elem()
+	} else {
+		goType = t
+	}
+
+	return goType
 }
 
 func makeMapRef(typeName string) string {

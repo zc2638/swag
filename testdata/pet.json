@@ -1,16 +1,48 @@
 {
+  "swag.MapObj": {
+    "type": "object",
+    "properties": {
+      "rule_options": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/definitions/swag.MapOption"
+        }
+      }
+    }
+  },
+  "swag.MapOption": {
+    "type": "object",
+    "properties": {
+      "match_src": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "ops": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "sub_options": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/definitions/swag.MapOption"
+        }
+      },
+      "values": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "swag.Person": {
     "type": "object",
     "properties": {
       "First": {
-        "type": "string"
-      }
-    }
-  },
-  "Anonymous": {
-    "type": "object",
-    "properties": {
-      "AnyOne": {
         "type": "string"
       }
     }
@@ -21,34 +53,21 @@
       "pointer"
     ],
     "properties": {
-      "Int": {
-        "type": "integer",
-        "format": "int32"
-      },
-      "IntArray": {
-        "type": "array",
-        "items": {
-          "type": "integer",
-          "format": "int32"
-        }
-      },
-      "Int64Array": {
-        "type": "array",
-        "items": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "String": {
+      "AnyOne": {
         "type": "string"
       },
-      "StringSecondWay": {
-        "type": "string"
+      "Bool": {
+        "type": "boolean"
       },
-      "StringArray": {
+      "Double": {
+        "type": "number",
+        "format": "double"
+      },
+      "DoubleArray": {
         "type": "array",
         "items": {
-          "type": "string"
+          "type": "number",
+          "format": "double"
         }
       },
       "Float": {
@@ -62,31 +81,108 @@
           "format": "float"
         }
       },
-      "Double": {
-        "type": "number",
-        "format": "double"
+      "Int": {
+        "type": "integer",
+        "format": "int32"
       },
-      "DoubleArray": {
+      "Int64Array": {
         "type": "array",
         "items": {
-          "type": "number",
-          "format": "double"
+          "type": "integer",
+          "format": "int64"
         }
       },
-      "Bool": {
-        "type": "boolean"
+      "IntArray": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "int32"
+        }
       },
-      "AnyOne": {
+      "MapSlice": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "MapSlicePtr": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "MapSliceStruct": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/swag.Person"
+          }
+        }
+      },
+      "MapSliceStructPtr": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/swag.Person"
+          }
+        }
+      },
+      "SliceString": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "SliceStringPtr": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "SliceStruct": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/swag.Person"
+        }
+      },
+      "SliceStructPtr": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/swag.Person"
+        }
+      },
+      "String": {
+        "type": "string"
+      },
+      "StringArray": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "StringSecondWay": {
         "type": "string"
       },
       "enum": {
         "type": "string",
-        "enum": ["a","b","c"],
+        "enum": [
+          "a",
+          "b",
+          "c"
+        ],
         "example": "b"
       },
       "friend": {
-        "$ref": "#/definitions/swag.Person",
-        "description": "description short expression"
+        "description": "description short expression",
+        "$ref": "#/definitions/swag.Person"
       },
       "friends": {
         "type": "array",
@@ -94,6 +190,9 @@
         "items": {
           "$ref": "#/definitions/swag.Person"
         }
+      },
+      "map_nest_options": {
+        "$ref": "#/definitions/swag.MapObj"
       },
       "pointer": {
         "$ref": "#/definitions/swag.Person"
