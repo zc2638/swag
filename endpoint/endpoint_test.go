@@ -212,7 +212,7 @@ func TestBodyR(t *testing.T) {
 		Name:     "body",
 		Required: true,
 		Schema: &swag.Schema{
-			Ref:       "#/definitions/endpoint.Model",
+			Ref:       "#/definitions/github.com_zc2638_swag_endpoint.Model",
 			Prototype: reflect.TypeOf(Model{}),
 		},
 	}
@@ -234,7 +234,7 @@ func TestBody(t *testing.T) {
 		Description: "the description",
 		Required:    true,
 		Schema: &swag.Schema{
-			Ref:       "#/definitions/endpoint.Model",
+			Ref:       "#/definitions/github.com_zc2638_swag_endpoint.Model",
 			Prototype: reflect.TypeOf(Model{}),
 		},
 	}
@@ -253,7 +253,7 @@ func TestResponse(t *testing.T) {
 	expected := swag.Response{
 		Description: "successful",
 		Schema: &swag.Schema{
-			Ref:       "#/definitions/endpoint.Model",
+			Ref:       "#/definitions/github.com_zc2638_swag_endpoint.Model",
 			Prototype: Model{},
 		},
 	}
