@@ -16,7 +16,6 @@ package swag
 
 import (
 	"fmt"
-	"path"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -68,10 +67,11 @@ func makeName(t reflect.Type) string {
 		ptr := reflect2.PtrOf(t)
 		name = "ptr" + strconv.FormatUint(uint64(uintptr(ptr)), 10)
 	}
-	pkgPath := path.Base(t.PkgPath())
+	pkgPath := t.PkgPath()
 	if pkgPath != "." {
 		pkgPath += "."
 	}
 	fullName := pkgPath + name
-	return strings.Replace(fullName, "-", "_", -1)
+	fullName = strings.ReplaceAll(fullName, "/", "_")
+	return strings.ReplaceAll(fullName, "-", "_")
 }
