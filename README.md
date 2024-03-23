@@ -97,7 +97,7 @@ func main() {
 			endpoint.Summary("Add a new pet to the store"),
 			endpoint.Description("Additional information on adding a pet to the store"),
 			endpoint.Body(Pet{}, "Pet object that needs to be added to the store", true),
-			endpoint.Response(http.StatusOK, "Successfully added pet", endpoint.Schema(Pet{})),
+			endpoint.Response(http.StatusOK, "Successfully added pet", endpoint.SchemaResponseOption(Pet{})),
 			endpoint.Security("petstore_auth", "read:pets", "write:pets"),
 		),
 		endpoint.New(
@@ -105,7 +105,7 @@ func main() {
 			endpoint.Handler(handle),
 			endpoint.Summary("Find pet by ID"),
 			endpoint.Path("petId", "integer", "ID of pet to return", true),
-			endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(Pet{})),
+			endpoint.Response(http.StatusOK, "successful operation", endpoint.SchemaResponseOption(Pet{})),
 			endpoint.Security("petstore_auth", "read:pets"),
 		),
 		endpoint.New(
@@ -113,7 +113,7 @@ func main() {
 			endpoint.Handler(handle),
 			endpoint.Path("petId", "integer", "ID of pet to return", true),
 			endpoint.Security("petstore_auth", "read:pets"),
-			endpoint.ResponseSuccess(endpoint.Schema(struct {
+			endpoint.ResponseSuccess(endpoint.SchemaResponseOption(struct {
 				ID   string `json:"id"`
 				Name string `json:"name"`
 			}{})),
@@ -316,19 +316,19 @@ func main() {
 		endpoint.Handler(handle),
 		endpoint.Description("Additional information on adding a pet to the store"),
 		endpoint.Body(Pet{}, "Pet object that needs to be added to the store", true),
-		endpoint.Response(http.StatusOK, "Successfully added pet", endpoint.Schema(Pet{})),
+		endpoint.Response(http.StatusOK, "Successfully added pet", endpoint.SchemaResponseOption(Pet{})),
 		endpoint.Security("petstore_auth", "read:pets", "write:pets"),
 	)
 	get := endpoint.New("get", "/pet/{petId}", endpoint.Summary("Find pet by ID"),
 		endpoint.Handler(handle),
 		endpoint.Path("petId", "integer", "ID of pet to return", true),
-		endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(Pet{})),
+		endpoint.Response(http.StatusOK, "successful operation", endpoint.SchemaResponseOption(Pet{})),
 		endpoint.Security("petstore_auth", "read:pets"),
 	)
 	test := endpoint.New("put", "/pet/{petId}",
 		endpoint.Handler(handle),
 		endpoint.Path("petId", "integer", "ID of pet to return", true),
-		endpoint.Response(http.StatusOK, "successful operation", endpoint.Schema(struct {
+		endpoint.Response(http.StatusOK, "successful operation", endpoint.SchemaResponseOption(struct {
 			ID   string `json:"id"`
 			Name string `json:"name"`
 		}{})),
