@@ -13,28 +13,13 @@
   "github.com_zc2638_swag.MapOption": {
     "type": "object",
     "properties": {
-      "match_src": {
-        "type": "string"
-      },
       "name": {
         "type": "string"
-      },
-      "ops": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
       },
       "sub_options": {
         "type": "object",
         "additionalProperties": {
           "$ref": "#/definitions/github.com_zc2638_swag.MapOption"
-        }
-      },
-      "values": {
-        "type": "array",
-        "items": {
-          "type": "string"
         }
       }
     }

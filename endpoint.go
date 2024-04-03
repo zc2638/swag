@@ -23,7 +23,6 @@ import (
 
 // Schema represents a schema from the swagger doc
 type Schema struct {
-	Type      string      `json:"type,omitempty"`
 	Items     *Property   `json:"items,omitempty"`
 	Ref       string      `json:"$ref,omitempty"`
 	Prototype interface{} `json:"-"`

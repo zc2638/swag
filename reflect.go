@@ -90,6 +90,7 @@ func buildProperty(t reflect.Type) (map[string]Property, []string) {
 		jsonTag := field.Tag.Get("json")
 		if strings.Contains(jsonTag, ",string") {
 			p.Type = types.String.String()
+			p.GoType = field.Type
 		} else {
 			p = inspect(field.Type)
 		}
@@ -115,7 +116,7 @@ func buildProperty(t reflect.Type) (map[string]Property, []string) {
 	return properties, required
 }
 
-func defineObject(v interface{}, desc string) Object {
+func defineObject(v interface{}) Object {
 	var t reflect.Type
 	switch value := v.(type) {
 	case reflect.Type:
@@ -127,13 +128,11 @@ func defineObject(v interface{}, desc string) Object {
 	kind := t.Kind()
 	if kind == reflect.Ptr {
 		// unwrap pointer
-		return defineObject(t.Elem(), desc)
+		return defineObject(t.Elem())
 	}
 
 	obj := Object{
-		GoType:      t,
-		Name:        kind.String(),
-		Description: desc,
+		Name: kind.String(),
 	}
 	switch kind {
 	case reflect.Slice, reflect.Array:
@@ -164,7 +163,7 @@ func defineObject(v interface{}, desc string) Object {
 
 func define(v interface{}) map[string]Object {
 	objMap := make(map[string]Object)
-	obj := defineObject(v, "")
+	obj := defineObject(v)
 	objMap[obj.Name] = obj
 
 	dirty := true
@@ -177,7 +176,7 @@ func define(v interface{}) map[string]Object {
 					if prop.GoType.Kind() == reflect.Struct {
 						name := makeName(prop.GoType)
 						if _, exists := objMap[name]; !exists {
-							child := defineObject(prop.GoType, prop.Description)
+							child := defineObject(prop.GoType)
 							objMap[child.Name] = child
 							dirty = true
 						}
@@ -192,7 +191,7 @@ func define(v interface{}) map[string]Object {
 
 // MakeSchema takes struct or pointer to a struct and returns a Schema instance suitable for use by the swagger doc
 func MakeSchema(prototype interface{}) *Schema {
-	obj := defineObject(prototype, "")
+	obj := defineObject(prototype)
 	schema := &Schema{
 		Prototype: prototype,
 		Ref:       makeRef(obj.Name),

@@ -21,30 +21,7 @@ Golang 1.16+
 ## Installation
 
 ```shell
-go get -u github.com/zc2638/swag@v1.4.3
-```
-
-## Use note:
-The time.time type uses jsonTag to parse it into a string type
-```go
-type XXX struct{
-  Now time.Time `json:",string"`
-}
-```
-
-The compatibility is resolved as follows：
-```go
-type xxx struct {
-    MapSlicePtr       map[string][]*string
-    MapSlice          map[string][]string
-    MapSliceStructPtr map[string][]*Person
-    MapSliceStruct    map[string][]Person
-    SliceStructPtr    *[]*Person
-    SliceStruct       *[]Person
-    SliceStringPtr    *[]*string
-    SliceString       *[]string
-}
-
+go get -u github.com/zc2638/swag@v1.5.1
 ```
 
 **Tip:** As of `v1.2.0`, lower versions are no longer compatible. In order to be compatible with most web frameworks,

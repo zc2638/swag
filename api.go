@@ -29,7 +29,6 @@ import (
 
 // Object represents the object entity from the swagger definition
 type Object struct {
-	GoType               reflect.Type        `json:"-"`
 	Name                 string              `json:"-"`
 	Type                 string              `json:"type"`
 	Description          string              `json:"description,omitempty"`
