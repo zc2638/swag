@@ -21,17 +21,10 @@ import (
 	"github.com/zc2638/swag/types"
 )
 
-// Items represents items from the swagger doc
-type Items struct {
-	Type   string `json:"type,omitempty"`
-	Format string `json:"format,omitempty"`
-	Ref    string `json:"$ref,omitempty"`
-}
-
 // Schema represents a schema from the swagger doc
 type Schema struct {
 	Type      string      `json:"type,omitempty"`
-	Items     *Items      `json:"items,omitempty"`
+	Items     *Property   `json:"items,omitempty"`
 	Ref       string      `json:"$ref,omitempty"`
 	Prototype interface{} `json:"-"`
 }

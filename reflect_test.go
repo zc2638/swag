@@ -78,7 +78,6 @@ func TestDefine(t *testing.T) {
 	v := define(Pet{})
 	obj, ok := v["github.com_zc2638_swag.Pet"]
 	assert.True(t, ok)
-	assert.False(t, obj.IsArray)
 	assert.Equal(t, 26, len(obj.Properties))
 
 	content := make(map[string]Object)
@@ -88,7 +87,6 @@ func TestDefine(t *testing.T) {
 	assert.Nil(t, err)
 	expected := content["github.com_zc2638_swag.Pet"]
 
-	assert.Equal(t, expected.IsArray, obj.IsArray, "expected IsArray to match")
 	assert.Equal(t, expected.Type, obj.Type, "expected Type to match")
 	assert.Equal(t, expected.Required, obj.Required, "expected Required to match")
 	assert.Equal(t, len(expected.Properties), len(obj.Properties), "expected same number of properties")
@@ -109,21 +107,18 @@ func TestNotStructDefine(t *testing.T) {
 	v := define(int32(1))
 	obj, ok := v["int32"]
 	assert.True(t, ok)
-	assert.False(t, obj.IsArray)
 	assert.Equal(t, "integer", obj.Type)
 	assert.Equal(t, "int32", obj.Format)
 
 	v = define(uint64(1))
 	obj, ok = v["uint64"]
 	assert.True(t, ok)
-	assert.False(t, obj.IsArray)
 	assert.Equal(t, "integer", obj.Type)
 	assert.Equal(t, "int64", obj.Format)
 
 	v = define("")
 	obj, ok = v["string"]
 	assert.True(t, ok)
-	assert.False(t, obj.IsArray)
 	assert.Equal(t, "string", obj.Type)
 	assert.Equal(t, "", obj.Format)
 
@@ -132,7 +127,6 @@ func TestNotStructDefine(t *testing.T) {
 	if !assert.True(t, ok) {
 		fmt.Printf("%v", v)
 	}
-	assert.False(t, obj.IsArray)
 	assert.Equal(t, "integer", obj.Type)
 	assert.Equal(t, "int32", obj.Format)
 
@@ -141,7 +135,6 @@ func TestNotStructDefine(t *testing.T) {
 	if !assert.True(t, ok) {
 		fmt.Printf("%v", v)
 	}
-	assert.True(t, obj.IsArray)
 	assert.Equal(t, "integer", obj.Type)
 	assert.Equal(t, "int32", obj.Format)
 }
@@ -150,7 +143,6 @@ func TestHonorJsonIgnore(t *testing.T) {
 	v := define(Empty{})
 	obj, ok := v["github.com_zc2638_swag.Empty"]
 	assert.True(t, ok)
-	assert.False(t, obj.IsArray)
 	assert.Equal(t, 0, len(obj.Properties), "expected zero exposed properties")
 }
 

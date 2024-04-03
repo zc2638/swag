@@ -29,38 +29,28 @@ import (
 
 // Object represents the object entity from the swagger definition
 type Object struct {
-	IsArray     bool                `json:"-"`
-	GoType      reflect.Type        `json:"-"`
-	Name        string              `json:"-"`
-	Type        string              `json:"type"`
-	Description string              `json:"description,omitempty"`
-	Format      string              `json:"format,omitempty"`
-	Required    []string            `json:"required,omitempty"`
-	Properties  map[string]Property `json:"properties,omitempty"`
+	GoType               reflect.Type        `json:"-"`
+	Name                 string              `json:"-"`
+	Type                 string              `json:"type"`
+	Description          string              `json:"description,omitempty"`
+	Format               string              `json:"format,omitempty"`
+	Required             []string            `json:"required,omitempty"`
+	Properties           map[string]Property `json:"properties,omitempty"`
+	AdditionalProperties *Property           `json:"additionalProperties,omitempty"`
+	Items                *Property           `json:"items,omitempty"`
 }
 
 // Property represents the property entity from the swagger definition
 type Property struct {
-	GoType       reflect.Type          `json:"-"`
-	Type         string                `json:"type,omitempty"`
-	Description  string                `json:"description,omitempty"`
-	Enum         []string              `json:"enum,omitempty"`
-	Format       string                `json:"format,omitempty"`
-	Ref          string                `json:"$ref,omitempty"`
-	Example      string                `json:"example,omitempty"`
-	Items        *Items                `json:"items,omitempty"`
-	AddPropertie *AdditionalProperties `json:"additionalProperties,omitempty"`
-}
-
-type AdditionalProperties struct {
-	GoType      reflect.Type `json:"-"`
-	Type        string       `json:"type,omitempty"`
-	Description string       `json:"description,omitempty"`
-	Enum        []string     `json:"enum,omitempty"`
-	Format      string       `json:"format,omitempty"`
-	Ref         string       `json:"$ref,omitempty"`
-	Example     string       `json:"example,omitempty"`
-	Items       *Items       `json:"items,omitempty"`
+	GoType               reflect.Type `json:"-"`
+	Type                 string       `json:"type,omitempty"`
+	Description          string       `json:"description,omitempty"`
+	Enum                 []string     `json:"enum,omitempty"`
+	Format               string       `json:"format,omitempty"`
+	Ref                  string       `json:"$ref,omitempty"`
+	Example              string       `json:"example,omitempty"`
+	Items                *Property    `json:"items,omitempty"`
+	AdditionalProperties *Property    `json:"additionalProperties,omitempty"`
 }
 
 // Contact represents the contact entity from the swagger definition; used by Info
@@ -252,7 +242,7 @@ func (a *API) addPath(e *Endpoint) {
 
 func (a *API) addDefinition(e *Endpoint) {
 	if a.Definitions == nil {
-		a.Definitions = map[string]Object{}
+		a.Definitions = make(map[string]Object)
 	}
 
 	if e.Parameters != nil {

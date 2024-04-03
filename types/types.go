@@ -26,11 +26,14 @@ func (pt ParameterType) String() string {
 }
 
 const (
+	Unknown ParameterType = ""
+
 	Integer ParameterType = "integer"
 	Number  ParameterType = "number"
 	Boolean ParameterType = "boolean"
 	String  ParameterType = "string"
 	Array   ParameterType = "array"
+	Object  ParameterType = "object"
 
 	File ParameterType = "file"
 )
@@ -43,12 +46,6 @@ const (
 
 type Context struct {
 	PathParams map[string]string
-}
-
-var SchemaMap = map[string]string{
-	"time.Time":     "string",
-	"time.Duration": "integer",
-	"json.Number":   "number",
 }
 
 // AddURLParamsToContext returns a copy of parent in which the context value is set
